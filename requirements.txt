@@ -1,0 +1,4 @@
+pydantic>=2.0.0
+openai>=1.0.0
+exa_py>=1.0.0
+tavily-python>=0.3.0
