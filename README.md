@@ -1,109 +1,74 @@
-# Research-Lookahead-AI: Sequential Trading Agent Evaluation
+# Research-Lookahead-AI: Sequential Multimodal Trading Agent
 
-A robust environment for evaluating Large Language Models (LLMs) as sequential traders in historical prediction markets (Kalshi). This system goes beyond static accuracy, testing an agent's ability to manage a portfolio, timing, and evolving context over time.
+A high-fidelity research platform for evaluating Large Language Models (LLMs) and Vision-Language Models (VLMs) as sequential traders in historical prediction markets. This system simulates a real-world trading environment where agents must process streaming text, market data, and visual signals while managing a recursive "Journal" memory.
 
 ## 🌟 Key Features
 
-*   **Sequential Decision Making**: Agents must Buy, Sell, or Hold over a 14-day period (configurable).
-*   **Time-Travel Simulation**:
-    *   **Strict Temporal Provenance**: The agent only sees data (Prices, News) available *up to* the current simulation step.
-    *   **Chain-of-Memory**: Reasoning and "Journal" entries are passed from Day N to Day N+1, simulating continuous thought.
+*   **Multimodal Decision Making**: 
+    *   **Visual Signals**: Agents analyze programmatically generated historical price charts (via `matplotlib`) and web images fetched from search results.
+    *   **Textual Context**: Processes real-time news snippets from **Exa** and **Tavily**.
+*   **Time-Travel Simulation (Anti-Cheating)**:
+    *   **Temporal Integrity**: A triple-layer defense (Native API filters + Query Engineering + **Temporal Guard** heuristics) ensures agents cannot see "future" news during historical simulations.
+    *   **Deterministic History**: Historical price data and charts are generated exactly as they would have appeared at the simulated timestamp.
 *   **Real Data Integration**:
-    *   **Kalshi API**: Fetches historical trade data (aggregated to OHLC). *Note: Order Book is estimated via Last Price.*
-    *   **Context/News Engine**: Flexible provider supporting **Exa**, **Tavily**, and **Web Scraping** to give the agent qualitative context (e.g., "Fed Chair Powell spoke today...").
-*   **Portfolio Management**: Tracks Cash, Positions, PnL per market, and enforces valid trades (no short-selling without holdings).
-*   **Structure Output**: LLMs are forced to output strict JSON with `action`, `quantity`, `belief_probability`, `reasoning`, and `journal`.
+    *   **Polymarket & Kalshi**: Robust providers for decentralized and regulated prediction markets.
+    *   **Automated Charting**: Generates OHLC/Price charts on-the-fly for any historical window.
+*   **Portfolio Management**: Tracks Cash, Positions, PnL, and enforces financial constraints.
+*   **Recursive Memory**: Uses a "Journaling" mechanism where the agent passes its evolving worldview from Day N to Day N+1.
 
 ## 📂 Project Structure
 
 ```
-├── main.py                 # Entry point for Full Simulation
-├── verify.py               # Quick verification loop (Mock data)
-├── run_simulation.sh       # Helper script to manage Keys & Config
-├── requirements.txt        # Python dependencies
+├── main.py                 # Core Simulation Entry point
+├── verify.py               # Mock verification loop
+├── run_simulation.sh       # Interactive helper script
+├── charts/                 # Generated historical price charts
 └── src/
     ├── agents/
-    │   ├── llm_agent.py    # Core Agent Logic (Prompting, Parsing)
-    │   ├── openai_provider.py # OpenAI API Wrapper
-    │   └── prompts.py      # System & User Templates (Dynamic)
+    │   ├── llm_agent.py    # Multi-turn logic & VLM handling
+    │   ├── openai_provider.py # OpenAI Vision/Text wrapper (Base64 hardened)
+    │   └── prompts.py      # Multimodal system templates
     ├── core/
-    │   ├── environment.py  # Simulation Loop (Time, Data, Logging)
+    │   ├── environment.py  # Orchestration, Time-loops, & Logging
     │   ├── portfolio.py    # Financial State Machine
-    │   └── types.py        # Pydantic Models (Action, Observation)
+    │   └── types.py        # Multimodal Action/Observation models
     └── data_loaders/
-        ├── kalshi.py       # Market Data Provider
-        └── context.py      # News/Web Data Provider (Exa, Tavily)
+        ├── polymarket.py   # Historical Gamma/CLOB/Chart API [NEW]
+        ├── kalshi.py       # Regulated exchange provider
+        └── context.py      # Multimodal News + Temporal Guard [UPDATED]
 ```
 
 ## 🚀 Getting Started
 
 ### 1. Prerequisites
 - Python 3.9+
-- API Keys (Optional but recommended for Real execution):
-    - `OPENAI_API_KEY`: For the Agent logic.
-    - `EXA_API_KEY` or `TAVILY_API_KEY`: For news context.
-    - `KALSHI_API_KEY`: For market data (referenced but public data often accessible without).
+- API Keys: `OPENAI_API_KEY`, `EXA_API_KEY`, `TAVILY_API_KEY`.
 
 ### 2. Installation
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Running a Simulation
-The easiest way is to use the interactive helper script:
-
+### 3. Running a Multimodal Simulation (Polymarket)
 ```bash
-./run_simulation.sh
-```
-
-1.  It will prompt you for your API Keys (temporarily exports them).
-2.  Choose **Option 2 (Full Simulation)**.
-3.  Enter the **Ticker** (e.g., `FED-RATE-CUT`) and the **Question** (e.g., "Will the Fed cut interest rates?").
-4.  Sit back! The agent will trade for the specified duration.
-
-### 4. Direct Usage (Advanced)
-```bash
-export OPENAI_API_KEY="sk-..."
 python3 main.py \
-  --ticker "FED-RATE-CUT" \
-  --question "Will the Fed cut rates?" \
+  --provider polymarket \
+  --ticker "Will Donald Trump win the 2024 Election?" \
+  --question "Will Donald Trump win the 2024 US Presidential Election?" \
   --start-date "2024-03-01" \
-  --days 14
+  --days 7
 ```
 
-## 🧠 Agent Logic: The "Journal" Interface
-To solve the "context window overflow" problem in long simulations, this agent uses a **Journaling** mechanism.
-- **Input**: Day N Context + [PREVIOUS JOURNAL] (Summary of Days 0..N-1).
-- **Output**: Action + Reasoning + **[NEW JOURNAL ENTRY]**.
-- This forces the model to summarize critical data points *as it goes*, preserving long-term memory without re-reading 14 days of raw news.
+## 🧠 Core Architecture: The "Temporal Guard"
+To prevent **Look-ahead Bias**, the project implements a sophisticated filtering engine:
+1.  **Native Filters**: Uses API-level `end_date` constraints for Exa and Tavily.
+2.  **Query Modifiers**: Appends temporal context to search queries (e.g., "news before [Date]").
+3.  **Heuristic Scan**: A secondary filter scans news headlines/content for "future outcome" keywords (e.g., "Defeated", "President-elect") to catch streaming updates that leak into historical results.
 
-## 📊 Evaluation
-Logs are saved to `logs/experiment_YYYYMMDD_HHMMSS.jsonl`.
-Each line contains:
-- Timestamp
-- Market Prices
-- Portfolio Value
-- Agent Action & Reasoning
-
-## 🛠 Extensibility
-- **New LLMs**: Implement `src.core.llm_interface.LLMProvider`.
-- **New Data**: Implement `src.data_loaders.market.DataProvider`.
+## 📊 Evaluation & Logs
+Detailed logs (JSONL) capture every multimodal signal, the agent's visual reasoning, and portfolio shifts. View them in `logs/`.
 
 ## 🔮 Future Goals
-
-The ultimate vision for this project is to benchmark and improve agentic capabilities in complex, evolving environments. Key areas of focus:
-
-1.  **Open Source VLMs**: Evaluate and integrate Vision-Language Models (e.g., LLaVA, Yi-VL) to directly process charts and visual market data.
-2.  **Visual World Modeling**: Move beyond text-based context to agents that build a "Visual World Model" of market dynamics.
-3.  **Continual Learning**: Implement mechanisms for agents to update their weights or long-term memory store *post-training* based on simulation outcomes (Regret minimization).
-4.  **Pre-training & Post-training**: Use the logs generated by this benchmark to create fine-tuning datasets for specialized "Trader Experts".
-5.  **Spatial Grounding**: Improve the agent's ability to spatially locate and reason about specific signals within high-density visual info (e.g., specific trend lines on a chart or heatmap regions).
-6.  **Next Scene Prediction & Latent Representations**: Developing world models that can predict future market "scenes" in latent space, allowing the agent to anticipate shifts before they are reflected in raw data.
-
-### 🌐 Broader Applications
-
-While the current focus is on prediction markets like Kalshi, the sequential agentic framework is designed to generalize to other high-stakes domains:
-- **Climate & Environment**: Predicting ecosystem shifts or policy impacts.
-- **Natural Calamities & Disasters**: Sequential modeling for early warning systems and resource allocation.
-- **Supply Chain & Logistics**: Navigating global disruptions in real-time.
-- **Public Health**: Anticipating epidemic trends and policy effectiveness.
+1.  **Open Source VLMs**: Integrate LLaVA and Yi-VL via local providers.
+2.  **Visual World Modeling**: Building latent representations of market "scenes" for predictive modeling.
+3.  **Continual Learning**: Regret minimization over multi-week simulation runs.
