@@ -7,16 +7,18 @@ from src.agents.llm_agent import SequentialLLMAgent
 from src.agents.openai_provider import OpenAIProvider
 from src.agents.mock_provider import MockLLMProvider
 from src.data_loaders.kalshi import KalshiDataProvider
+from src.data_loaders.polymarket import PolymarketDataProvider
 from src.data_loaders.context import ContextDataProvider
 from src.utils.logger import ExperimentLogger
 
 def main():
     parser = argparse.ArgumentParser(description='Sequential Trader Simulation')
-    parser.add_argument('--ticker', type=str, default="FED-RATE-CUT", help='Kalshi Market Ticker')
-    parser.add_argument('--question', type=str, default="Will the Fed cut interest rates in March?", help='The specific question to predict')
-    parser.add_argument('--start-date', type=str, default="2024-01-01", help='Start date YYYY-MM-DD')
+    parser.add_argument('--ticker', type=str, default="Bitcoin", help='Market Ticker or Search Query')
+    parser.add_argument('--question', type=str, default="Will Bitcoin reach $100k by 2025?", help='The specific question to predict')
+    parser.add_argument('--start-date', type=str, default="2024-03-01", help='Start date YYYY-MM-DD')
     parser.add_argument('--days', type=int, default=14, help='Duration in days')
     parser.add_argument('--mock', action='store_true', help='Use mock LLM instead of OpenAI')
+    parser.add_argument('--provider', type=str, default="polymarket", choices=["kalshi", "polymarket"], help='Data provider to use')
     
     args = parser.parse_args()
 
@@ -30,6 +32,7 @@ def main():
     end_date = start_date + timedelta(days=args.days)
     
     print(f"--- Configuration ---")
+    print(f"Provider: {args.provider}")
     print(f"Market: {args.ticker}")
     print(f"Question: {args.question}")
     print(f"Period: {start_date.date()} to {end_date.date()} ({args.days} days)")
@@ -37,9 +40,11 @@ def main():
     print(f"---------------------")
 
     # 1. Initialize Data Providers
-    # Kalshi
-    kalshi_key = os.environ.get("KALSHI_API_KEY") # Optional for public data
-    market_provider = KalshiDataProvider(api_key=kalshi_key)
+    if args.provider == "kalshi":
+        kalshi_key = os.environ.get("KALSHI_API_KEY")
+        market_provider = KalshiDataProvider(api_key=kalshi_key)
+    else:
+        market_provider = PolymarketDataProvider()
     
     # Context (Exa/Tavily)
     # They check their own env vars

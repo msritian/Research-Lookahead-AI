@@ -50,8 +50,9 @@ class MarketEnvironment:
         # News/Context from the last step until now
         news_start = self.current_time - self.step_size
         news = []
+        market_context = self.market_ids[0] if self.market_ids else "General"
         if self.context_provider:
-             news = self.context_provider.get_news(news_start, self.current_time)
+             news = self.context_provider.get_news(news_start, self.current_time, market_context=market_context)
         elif self.market_provider:
              news = self.market_provider.get_news(news_start, self.current_time)
 
@@ -60,7 +61,6 @@ class MarketEnvironment:
             timestamp=self.current_time,
             market_snapshots=snapshots,
             news=news,
-            portfolio=self.portfolio.get_state(current_prices),
             portfolio=self.portfolio.get_state(current_prices),
             previous_reasoning=self.previous_reasoning,
             previous_journal=self.previous_journal
@@ -96,6 +96,10 @@ class MarketEnvironment:
             "market_prices": current_prices,
             "portfolio_value": self.portfolio.get_state(current_prices).total_value,
             "action": action.dict(),
+            "observation": {
+                "news": [n.dict() for n in news],
+                "portfolio": observation.portfolio.dict()
+            },
             "success": success
         }
         self.history.append(log_entry)

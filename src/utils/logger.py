@@ -14,10 +14,19 @@ class ExperimentLogger:
         """
         Logs a single event to the JSONL file.
         """
+        def serialize(obj):
+            if isinstance(obj, datetime):
+                return obj.isoformat()
+            if isinstance(obj, dict):
+                return {k: serialize(v) for k, v in obj.items()}
+            if isinstance(obj, list):
+                return [serialize(i) for i in obj]
+            return obj
+
         entry = {
             "timestamp": datetime.now().isoformat(),
             "event_type": event_type,
-            "data": data
+            "data": serialize(data)
         }
         with open(self.log_file, "a") as f:
             f.write(json.dumps(entry) + "\n")

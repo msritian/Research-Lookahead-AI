@@ -22,14 +22,21 @@ class SequentialLLMAgent(Agent):
             )
         market_data_str = "\n".join(market_strs)
 
-        # 2. Format News
+        # 2. Format News and collect all images
         news_strs = []
         image_urls = []
+        
+        # 2a. News images
         for n in observation.news:
             news_strs.append(f"[{n.source}] {n.headline}: {n.content[:200]}...")
             if n.image_url:
                 image_urls.append(n.image_url)
         news_str = "\n".join(news_strs) if news_strs else "No new news today."
+
+        # 2b. Market chart images
+        for mid, snap in observation.market_snapshots.items():
+            if snap.image_url:
+                image_urls.append(snap.image_url)
 
         # 3. Format Portfolio
         positions_str = str(observation.portfolio.positions)
@@ -61,6 +68,7 @@ class SequentialLLMAgent(Agent):
                 market_id=data["market_id"],
                 quantity=int(data["quantity"]),
                 reasoning=data["reasoning"],
+                journal=data["journal"],
                 belief=float(data["belief_probability"])
             )
             
@@ -72,5 +80,6 @@ class SequentialLLMAgent(Agent):
                 market_id="error_fallback",
                 quantity=0,
                 reasoning=f"Error in LLM processing: {str(e)}",
+                journal="Error occurred. No state preserved.",
                 belief=0.5
             )
