@@ -27,6 +27,7 @@ class MarketSnapshot(BaseModel):
     last_price: float
     volume: int
     open_interest: int
+    image_url: Optional[str] = None # For generated/fetched charts
     chart_data: Optional[Dict[str, Any]] = None # Could be OHLCV series
     order_book: Optional[Dict[str, Any]] = None # Deep order book if available
 

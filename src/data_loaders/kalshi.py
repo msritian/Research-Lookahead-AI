@@ -5,7 +5,7 @@ from ..core.types import MarketSnapshot, NewsItem
 from .market import DataProvider
 
 class KalshiDataProvider(DataProvider):
-    BASE_URL = "https://api.elections.kalshi.com/trade-api/v2"
+    BASE_URL = "https://trading-api.kalshi.com/trade-api/v2"
 
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key # Most public data doesn't need it
@@ -67,14 +67,22 @@ class KalshiDataProvider(DataProvider):
 
     def _fetch_history(self, market_id: str):
         # GET /markets/{ticker}/trades
-        # This is strictly a demo wrapper. Real implementation needs pagination.
+        # This is strictly a demo wrapper. Real implementation needs pagination for long histories.
         url = f"{self.BASE_URL}/markets/{market_id}/trades"
         try:
-            # This calling is comment out to avoid actual network hit during dev
-            # resp = requests.get(url, headers=self.headers)
-            # data = resp.json()
-            # self._history_cache[market_id] = sorted(data['trades'], key=lambda x: x['ts'])
-            pass 
+            params = {"limit": 1000} # Get a good chunk of recent trades
+            resp = requests.get(url, headers=self.headers, params=params)
+            resp.raise_for_status()
+            data = resp.json()
+            
+            if 'trades' in data:
+                # Sort by timestamp ascending for simulation playback
+                self._history_cache[market_id] = sorted(data['trades'], key=lambda x: x['ts'])
+                print(f"Fetched {len(self._history_cache[market_id])} trades for {market_id}")
+            else:
+                print(f"No trades found for {market_id}")
+                self._history_cache[market_id] = []
+                
         except Exception as e:
-            print(f"Error fetching Kalshi history: {e}")
+            print(f"Error fetching Kalshi history for {market_id}: {e}")
             self._history_cache[market_id] = []
