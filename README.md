@@ -55,14 +55,27 @@ A high-fidelity research platform for evaluating Large Language Models (LLMs) an
 pip install -r requirements.txt
 ```
 
-### 3. Running a Multimodal Simulation (Polymarket)
+### 3. Running a High-Precision Simulation (main.py)
+Use the following command to run a 14-day historical simulation with high-precision timing and a custom news window:
+
 ```bash
+# Example: Sucre Mayoral Election
 python3 main.py \
   --provider polymarket \
-  --ticker "Will Donald Trump win the 2024 Election?" \
-  --question "Will Donald Trump win the 2024 US Presidential Election?" \
-  --start-date "2024-03-01" \
-  --days 7
+  --ticker "sucre-mayoral-election-winner-bolivia" \
+  --question "Who will win the Sucre Mayoral Election in Bolivia?" \
+  --start-date "2026-02-08T15:00:00" \
+  --days 14 \
+  --window 14 \
+  --max-content 3000
+```
+
+### 4. Evaluating Simulation Results (evaluate.py)
+After the simulation finishes, use the evaluation script to calculate MAE, Brier Score, and ROI:
+
+```bash
+# Evaluate a specific log file
+python3 evaluate.py --log_file logs/experiment_20260223_011343.jsonl
 ```
 
 ## 🧠 Core Architecture: The "Temporal Guard"
