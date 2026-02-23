@@ -11,7 +11,6 @@ class MockLLMProvider(LLMProvider):
             "market_id": "kalshi_mut_1",
             "quantity": 1,
             "belief_probability": 0.75,
-            "reasoning": "Positive fake news detected. Increasing position.",
-            "journal": "Day 1: Market seems bullish."
+            "reasoning": "Positive fake news detected. Increasing position."
         }
         return json.dumps(response)

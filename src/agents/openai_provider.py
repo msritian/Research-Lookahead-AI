@@ -14,25 +14,36 @@ class OpenAIProvider(LLMProvider):
 
     def _encode_image(self, image_source: str) -> Optional[str]:
         """
-        Encodes a local path or a remote URL into a base64 data URL.
+        Downloads and encodes a local path or remote URL into a base64 data URL.
+        Returns None if the image cannot be fetched or is not a valid image type.
         """
         try:
             if os.path.exists(image_source):
-                # Local file
                 mime_type, _ = mimetypes.guess_type(image_source)
                 with open(image_source, "rb") as f:
                     data = f.read()
             else:
-                # Remote URL
-                resp = requests.get(image_source, timeout=5)
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8',
+                }
+                resp = requests.get(image_source, headers=headers, timeout=8)
                 resp.raise_for_status()
+                mime_type = resp.headers.get('Content-Type', '').split(';')[0].strip()
                 data = resp.content
-                mime_type = resp.headers.get('Content-Type', 'image/png')
-            
+
+            # Only proceed with valid image mime types
+            if not mime_type or not mime_type.startswith('image/'):
+                return None
+
+            # Skip empty or tiny responses (likely error pages)
+            if len(data) < 1000:
+                return None
+
             encoded = base64.b64encode(data).decode('utf-8')
             return f"data:{mime_type};base64,{encoded}"
         except Exception as e:
-            print(f"Error encoding image {image_source}: {e}")
+            print(f"[Image Skip] {image_source[:80]}... → {type(e).__name__}: {e}")
             return None
 
     def generate(self, system_prompt: str, user_prompt: str, image_urls: Optional[List[str]] = None) -> str:
@@ -43,19 +54,25 @@ class OpenAIProvider(LLMProvider):
         user_content = []
         user_content.append({"type": "text", "text": user_prompt})
 
-        # Add images if available
+        # Add images — download and base64-encode locally to avoid CDN blocks
+        # Cap at 5 images per call to manage token usage
         if image_urls:
+            encoded_count = 0
             for url in image_urls:
-                if not url: continue
-                b64_url = self._encode_image(url)
-                if b64_url:
+                if not url or encoded_count >= 5:
+                    break
+                image_payload = self._encode_image(url)
+                if image_payload:
                     user_content.append({
                         "type": "image_url",
                         "image_url": {
-                            "url": b64_url,
-                            "detail": "high"
+                            "url": image_payload,
+                            "detail": "low"  # "low" uses fewer tokens; switch to "high" for detail
                         }
                     })
+                    encoded_count += 1
+            if encoded_count > 0:
+                print(f"[Vision] Sending {encoded_count} image(s) to OpenAI.")
         
         messages.append({"role": "user", "content": user_content})
 
@@ -63,8 +80,7 @@ class OpenAIProvider(LLMProvider):
             response = self.client.chat.completions.create(
                 model=self.model_name,
                 messages=messages,
-                temperature=0.0,
-                response_format={"type": "json_object"}
+                temperature=0.0
             )
             return response.choices[0].message.content
         except Exception as e:

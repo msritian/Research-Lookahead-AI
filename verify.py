@@ -24,7 +24,7 @@ def main():
     
     # 3. Agent
     llm_provider = MockLLMProvider()
-    agent = SequentialLLMAgent(llm_provider)
+    agent = SequentialLLMAgent(llm_provider, market_question="Mock Question")
     
     logger = ExperimentLogger(log_dir="logs_verification")
     
