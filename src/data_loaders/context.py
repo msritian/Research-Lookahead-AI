@@ -13,7 +13,7 @@ from tavily import TavilyClient
 
 class BaseContextSource(ABC):
     @abstractmethod
-    def fetch(self, query: str, start_date: datetime, end_date: datetime) -> List[NewsItem]:
+    def fetch(self, query: str, start_date: datetime, end_date: datetime, max_content: int = 2000) -> List[NewsItem]:
         pass
 
 # --- Implementations ---
@@ -23,7 +23,7 @@ class ExaSource(BaseContextSource):
         self.api_key = api_key or os.environ.get("EXA_API_KEY")
         self.exa = Exa(self.api_key) if self.api_key else None
 
-    def fetch(self, query: str, start_date: datetime, end_date: datetime) -> List[NewsItem]:
+    def fetch(self, query: str, start_date: datetime, end_date: datetime, max_content: int = 2000) -> List[NewsItem]:
         if not self.exa:
             return []
         
@@ -37,8 +37,9 @@ class ExaSource(BaseContextSource):
                 query,
                 start_published_date=start_str,
                 end_published_date=end_str,
-                num_results=3,
-                text=True # Ensure text is returned
+                num_results=7,
+                text=True,   # Full article text
+                highlights=True  # Key snippets as highlight summary
             )
             
             news_items = []
@@ -60,7 +61,7 @@ class ExaSource(BaseContextSource):
                     timestamp=pub_date,
                     source="Exa",
                     headline=result.title or "No Title",
-                    content=result.text[:500] if result.text else "No Content",
+                    content=result.text[:max_content] if result.text else "No Content",
                     image_url=image_url
                 ))
             return news_items
@@ -73,7 +74,7 @@ class TavilySource(BaseContextSource):
         self.api_key = api_key or os.environ.get("TAVILY_API_KEY")
         self.tavily = TavilyClient(api_key=self.api_key) if self.api_key else None
 
-    def fetch(self, query: str, start_date: datetime, end_date: datetime) -> List[NewsItem]:
+    def fetch(self, query: str, start_date: datetime, end_date: datetime, max_content: int = 2000) -> List[NewsItem]:
         if not self.tavily:
             return []
             
@@ -117,7 +118,7 @@ class TavilySource(BaseContextSource):
                     timestamp=item_date, 
                     source="Tavily",
                     headline=result.get('title', 'No Title'),
-                    content=content,
+                    content=content[:max_content] if content else "No Content",
                     image_url=img_url
                 ))
             return news_items
@@ -133,7 +134,7 @@ class WebSource(BaseContextSource):
 # --- Aggregator ---
 
 class ContextDataProvider(DataProvider):
-    def __init__(self, sources: List[str] = ["exa", "tavily"], query_template: str = "{ticker} context"):
+    def __init__(self, sources: List[str] = ["exa", "tavily"], query_template: str = "{ticker} context", max_content: int = 2000):
         self.sources = []
         if "exa" in sources:
             self.sources.append(ExaSource())
@@ -143,6 +144,7 @@ class ContextDataProvider(DataProvider):
             self.sources.append(WebSource())
             
         self.query_template = query_template
+        self.max_content = max_content
 
     def get_market_snapshot(self, market_id: str, timestamp: datetime):
         raise NotImplementedError("This provider only handles News")
@@ -156,18 +158,30 @@ class ContextDataProvider(DataProvider):
         
         for source in self.sources:
             try:
-                items = source.fetch(query, timestamp_start, timestamp_end)
+                items = source.fetch(query, timestamp_start, timestamp_end, max_content=self.max_content)
                 all_news.extend(items)
             except Exception as e:
                 print(f"Error fetching from source {source}: {e}")
                 
-        # --- Temporal Guard: Filter out 'Future Leaks' ---
+        # --- Temporal Guard: Filter out 'Future Leaks' AND 'Stale Data' ---
         clean_news = []
         
         for item in all_news:
             content_lower = item.content.lower()
             headline_lower = item.headline.lower()
             
+            item_ts = item.timestamp.replace(tzinfo=None) if item.timestamp else None
+            
+            # 0. HARD DATE BOUNDS: Reject anything outside [timestamp_start, timestamp_end)
+            # This corrects Exa's soft date filtering — semantically relevant but out-of-window articles
+            if item_ts:
+                if item_ts < timestamp_start.replace(tzinfo=None):
+                    print(f"DEBUG: Filtered stale article (before window): [{item_ts.date()}] {item.headline[:60]}")
+                    continue
+                if item_ts >= timestamp_end.replace(tzinfo=None):
+                    print(f"DEBUG: Filtered future article (after window): [{item_ts.date()}] {item.headline[:60]}")
+                    continue
+
             # 1. Hard Year Check: If it mentions 2025 in a context that isn't future-gazing
             if timestamp_end.year <= 2024:
                 if "2025" in content_lower and "inauguration" not in content_lower:
@@ -187,12 +201,6 @@ class ContextDataProvider(DataProvider):
                 if any(p in content_lower or p in headline_lower for p in outcome_patterns):
                     print(f"DEBUG: Filtered out outcome leak: {item.headline}")
                     continue
-
-            # 3. Source Sanity Check
-            # If the source timestamp itself is after our end_date (sometimes sources lie in their metadata)
-            if item.timestamp and item.timestamp.replace(tzinfo=None) > timestamp_end.replace(tzinfo=None):
-                print(f"DEBUG: Filtered out metadata leak: {item.headline}")
-                continue
             
             clean_news.append(item)
 

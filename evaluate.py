@@ -1,0 +1,133 @@
+import os
+import json
+import argparse
+from typing import List, Dict, Any
+
+def load_logs(log_file: str) -> List[Dict[str, Any]]:
+    """Loads the step entries from a JSONL experiment log file."""
+    steps = []
+    
+    if not os.path.exists(log_file):
+        print(f"Error: Log file not found at {log_file}")
+        return steps
+        
+    with open(log_file, 'r') as f:
+        for line in f:
+            if line.strip():
+                try:
+                    entry = json.loads(line)
+                    # The logger writes {event_type, data} wrappers
+                    if entry.get('event_type') == 'step':
+                        steps.append(entry['data'])
+                    elif 'market_prices' in entry:
+                        # Flat format (older runs)
+                        steps.append(entry)
+                except json.JSONDecodeError:
+                    continue
+    return steps
+
+def evaluate_run(log_file: str):
+    """Calculates ground truth verification metrics from a simulation run."""
+    print(f"\n--- Evaluating Simulation: {log_file} ---")
+    steps = load_logs(log_file)
+    
+    if not steps:
+        print("No valid steps found to evaluate.")
+        return
+
+    # 1. Financial Performance (PnL / ROI)
+    print("\n1. Financial Performance (PnL / ROI)")
+    print("-" * 60)
+    initial_value = steps[0].get("portfolio_value", 1000.0)
+    final_value = steps[-1].get("portfolio_value", 1000.0)
+    pnl = final_value - initial_value
+    roi = (pnl / initial_value) * 100
+    
+    print(f"Starting Value: ${initial_value:.2f}")
+    print(f"Final Value:    ${final_value:.2f}")
+    print(f"Total PnL:      ${pnl:.2f} ({roi:+.2f}%)")
+
+    # 2. Track Daily Belief vs True Price (Brier Score / MAE)
+    total_error = 0.0
+    total_squared_error = 0.0
+    valid_points = 0
+    
+    print("\n2. Daily Price Alignment (Agent Belief vs. Market Truth)")
+    print("-" * 60)
+    for i, step in enumerate(steps):
+        gt_data = step.get("ground_truth_verification", {})
+        actual_prices = gt_data.get("actual_prices", {})
+        agent_belief = gt_data.get("agent_belief")
+        current_value = step.get("portfolio_value", 0.0)
+        
+        if actual_prices and agent_belief is not None:
+            market_id = list(actual_prices.keys())[0]
+            true_price = actual_prices[market_id]
+            
+            error = abs(agent_belief - true_price)
+            total_error += error
+            total_squared_error += (agent_belief - true_price) ** 2
+            valid_points += 1
+            
+            print(f"Day {i+1:2d} | Price: {true_price:.2f} | Belief: {agent_belief:.2f} | Err: {error:.2f} | Portfolio: ${current_value:7.2f}")
+
+    if valid_points > 0:
+        mae = total_error / valid_points
+        brier = total_squared_error / valid_points
+        print(f"\n=> Mean Absolute Error (MAE): {mae:.3f}")
+        print(f"=> Brier Score (MSE):          {brier:.3f} (Lower is better)")
+        
+        if mae < 0.10:
+            print("Verdict: Excellent Calibration.")
+        elif mae < 0.25:
+            print("Verdict: Acceptable Calibration.")
+        else:
+            print("Verdict: Poor Calibration.")
+
+    # 3. Final Outcome Alignment
+    print("\n3. Final Outcome Alignment")
+    print("-" * 60)
+    final_step = steps[-1]
+    final_portfolio = final_step.get("observation", {}).get("portfolio", {})
+    final_positions = final_portfolio.get("positions", {})
+    
+    gt_data = final_step.get("ground_truth_verification", {})
+    final_prices = gt_data.get("actual_prices", {})
+    
+    if final_prices and final_positions:
+        market_id = list(final_prices.keys())[0]
+        final_price = final_prices[market_id]
+        held_quantity = final_positions.get(market_id, 0)
+        
+        print(f"Final Market T-Price: {final_price:.2f}")
+        print(f"Final Agent Position: {held_quantity} shares")
+        
+        implied_truth = "YES" if final_price > 0.5 else "NO"
+        agent_bet = "YES" if held_quantity > 0 else "NO/NEUTRAL"
+        
+        if implied_truth == "YES" and agent_bet == "YES":
+            print("Verdict: SUCCESS. Agent held positions for the winning outcome.")
+        elif implied_truth == "NO" and agent_bet == "YES":
+            print("Verdict: FAILED. Agent held positions for the losing outcome.")
+        else:
+            print("Verdict: NEUTRAL/CAUTIOUS. Agent held no positions.")
+            
+    # 4. Rules & Reasoning
+    print("\n4. Reasoning Excerpts")
+    print("-" * 60)
+    # Just show first, middle, and last to save space
+    indices = [0, len(steps)//2, len(steps)-1]
+    for idx in sorted(list(set(indices))):
+        if idx < len(steps):
+            action = steps[idx].get("action", {})
+            reasoning = action.get("reasoning", "No reasoning.")
+            print(f"Day {idx+1}: {reasoning[:200]}...")
+        
+    print("\nEvaluation Complete.")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Evaluate Research-Lookahead-AI Simulation Run")
+    parser.add_argument("--log_file", type=str, required=True, help="Path to the experiment JSONL log file, e.g., logs/experiment_20260223_000133.jsonl")
+    args = parser.parse_args()
+    
+    evaluate_run(args.log_file)

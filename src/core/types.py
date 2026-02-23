@@ -15,7 +15,6 @@ class Action(BaseModel):
     quantity: int = Field(default=0, ge=0)
     price: Optional[float] = None # Limit price, if applicable. None for Market.
     reasoning: str # The 'Chain of Thought' or justification
-    journal: str # Key facts to remember for tomorrow
     belief: float = Field(..., ge=0.0, le=1.0) # The agent's subjective probability of YES
 
 class MarketSnapshot(BaseModel):
@@ -43,11 +42,10 @@ class NewsItem(BaseModel):
 class Observation(BaseModel):
     """The full state visible to the agent at a given step."""
     timestamp: datetime
+    context_window_days: int
     market_snapshots: Dict[str, MarketSnapshot]
     news: List[NewsItem]
     portfolio: 'PortfolioState'
-    previous_reasoning: Optional[str] = None
-    previous_journal: Optional[str] = None # From the previous day
 
 class PortfolioState(BaseModel):
     """Current financial state of the agent."""

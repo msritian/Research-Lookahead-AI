@@ -47,13 +47,17 @@ class PolymarketDataProvider(DataProvider):
         # 4. Generate Chart Image
         chart_path = self._generate_chart_image(token_id, market_id, relevant, timestamp)
 
+        # 5. Get Volume/Metadata
+        rules_meta = self._market_rules.get(token_id, {})
+        volume = float(rules_meta.get("volume", 0))
+
         return MarketSnapshot(
             market_id=market_id,
             timestamp=timestamp,
             best_bid=max(0.01, price - 0.005),
             best_ask=min(0.99, price + 0.005),
             last_price=price,
-            volume=0,
+            volume=int(volume),
             open_interest=0,
             image_url=chart_path
         )
@@ -97,6 +101,20 @@ class PolymarketDataProvider(DataProvider):
 
     def get_news(self, timestamp_start: datetime, timestamp_end: datetime) -> List[NewsItem]:
         return []
+
+    def get_market_rules(self, market_id: str) -> str:
+        """Returns the ground truth resolution rules for the market."""
+        if not hasattr(self, '_market_rules'):
+            return "No rules provided."
+            
+        token_id = self._token_cache.get(market_id)
+        if not token_id:
+            token_id = self._resolve_token(market_id)
+            if not token_id:
+                return "No rules provided."
+                
+        market_meta = self._market_rules.get(token_id, {})
+        return market_meta.get("rules", "No rules provided.")
 
     def _is_range_covered(self, token_id: str, ts: float) -> bool:
         ranges = self._fetched_ranges.get(token_id, [])
@@ -157,6 +175,22 @@ class PolymarketDataProvider(DataProvider):
                     if yes_idx != -1:
                         tid = token_ids[yes_idx]
                         self._token_cache[query] = tid
+                        
+                        # Store Ground Truth Metadata for Verification
+                        if not hasattr(self, '_market_rules'):
+                            self._market_rules = {}
+                        
+                        # Gamma API returns description mapping to the rules
+                        description = market.get("description", "No rules provided.")
+                        volume = float(market.get("volume", 0))
+                        
+                        self._market_rules[tid] = {
+                            "rules": description,
+                            "volume": volume,
+                            "closed": market.get("closed", False),
+                            "conditionId": market.get("conditionId", "")
+                        }
+                        
                         print(f"Resolved {query} to token: {tid}")
                         return tid
             return None

@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
+import os
+import json
 from .types import Observation, Action, TradeType, MarketSnapshot, PortfolioState
 from .portfolio import Portfolio
 from .agent import Agent
@@ -16,7 +18,8 @@ class MarketEnvironment:
         context_provider: Optional[DataProvider] = None,
         logger: Optional[ExperimentLogger] = None,
         step_size: timedelta = timedelta(days=1),
-        market_ids: List[str] = None
+        market_ids: List[str] = None,
+        context_window_days: int = 14
     ):
         self.current_time = start_date
         self.end_date = end_date
@@ -27,10 +30,11 @@ class MarketEnvironment:
         self.portfolio = Portfolio()
         self.step_size = step_size
         self.market_ids = market_ids or ["market_1"] # Default to one market if not specified
+        self.context_window_days = context_window_days
         
         self.history: List[Dict[str, Any]] = []
-        self.previous_reasoning: Optional[str] = None
-        self.previous_journal: Optional[str] = None
+        self.raw_data_dir = "raw_data"
+        os.makedirs(self.raw_data_dir, exist_ok=True)
 
     def step(self):
         """
@@ -47,29 +51,35 @@ class MarketEnvironment:
             snapshots[m_id] = snapshot
             current_prices[m_id] = snapshot.last_price
 
-        # News/Context from the last step until now
-        news_start = self.current_time - self.step_size
+        # News/Context from the T-window days until just before current_time
+        # Cutoff is (current_time - 1s) so any news published ON day T is excluded.
+        # The market snapshot price is taken at current_time (midnight), so news from
+        # the same day could reveal post-market info — we strictly avoid this.
+        news_start = self.current_time - timedelta(days=self.context_window_days)
+        news_end = self.current_time - timedelta(seconds=1)
         news = []
         market_context = self.market_ids[0] if self.market_ids else "General"
         if self.context_provider:
-             news = self.context_provider.get_news(news_start, self.current_time, market_context=market_context)
+             news = self.context_provider.get_news(news_start, news_end, market_context=market_context)
         elif self.market_provider:
-             news = self.market_provider.get_news(news_start, self.current_time)
+             news = self.market_provider.get_news(news_start, news_end)
 
         # 3. Construct Observation
         observation = Observation(
             timestamp=self.current_time,
+            context_window_days=self.context_window_days,
             market_snapshots=snapshots,
             news=news,
-            portfolio=self.portfolio.get_state(current_prices),
-            previous_reasoning=self.previous_reasoning,
-            previous_journal=self.previous_journal
+            portfolio=self.portfolio.get_state(current_prices)
         )
 
+        # Retrieve ground truth rules to pass to the agent
+        market_rules = "None Provided"
+        if hasattr(self.market_provider, 'get_market_rules'):
+            market_rules = self.market_provider.get_market_rules(self.market_ids[0])
+
         # 4. Agent Action
-        action = self.agent.act(observation)
-        self.previous_reasoning = action.reasoning 
-        self.previous_journal = action.journal
+        action = self.agent.act(observation, market_rules=market_rules)
 
         # 5. Execution
         # Get the price for the trade
@@ -100,12 +110,52 @@ class MarketEnvironment:
                 "news": [n.dict() for n in news],
                 "portfolio": observation.portfolio.dict()
             },
+            "ground_truth_verification": {
+                # Store the direct mapping of actual price vs. agent's belief probability to calculate Brier Score later
+                "actual_prices": current_prices, 
+                "agent_belief": action.belief
+            },
             "success": success
         }
         self.history.append(log_entry)
         
         if self.logger:
             self.logger.log("step", log_entry)
+
+        # 7. Save raw data for human inspection
+        raw_step = {
+            "date": self.current_time.strftime("%Y-%m-%d"),
+            "context_window": f"{news_start.date()} to {news_end.date()} (cutoff: {news_end.strftime('%Y-%m-%d %H:%M:%S')})",
+            "market_data": {
+                mid: {
+                    "price": snap.last_price,
+                    "bid": snap.best_bid,
+                    "ask": snap.best_ask,
+                    "volume": snap.volume,
+                    "chart_image": snap.image_url
+                }
+                for mid, snap in snapshots.items()
+            },
+            "market_rules": market_rules,
+            "news": [
+                {
+                    "date": n.timestamp.strftime("%Y-%m-%d"),
+                    "source": n.source,
+                    "headline": n.headline,
+                    "content": n.content,
+                    "image_url": n.image_url
+                }
+                for n in news
+            ],
+            "agent_action": {
+                "action": action.action_type,
+                "belief": action.belief,
+                "reasoning": action.reasoning
+            }
+        }
+        raw_path = os.path.join(self.raw_data_dir, f"{self.current_time.strftime('%Y-%m-%d')}.json")
+        with open(raw_path, 'w') as f:
+            json.dump(raw_step, f, indent=2, default=str)
 
         # 7. Time Advance
         self.current_time += self.step_size

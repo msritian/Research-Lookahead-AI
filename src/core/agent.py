@@ -5,7 +5,7 @@ from .types import Observation, Action, TradeType
 
 class Agent(ABC):
     @abstractmethod
-    def act(self, observation: Observation) -> Action:
+    def act(self, observation: Observation, market_rules: str = "None Provided") -> Action:
         """
         Decide on an action given the current observation.
         """
@@ -15,7 +15,7 @@ class RandomAgent(Agent):
     """
     An agent that takes random actions. Useful for baseline and testing.
     """
-    def act(self, observation: Observation) -> Action:
+    def act(self, observation: Observation, market_rules: str = "None Provided") -> Action:
         # Pick a random market from the observation
         if not observation.market_snapshots:
             # Should not happen in this setup, but handle gracefully

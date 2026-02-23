@@ -5,37 +5,43 @@ A high-fidelity research platform for evaluating Large Language Models (LLMs) an
 ## 🌟 Key Features
 
 *   **Multimodal Decision Making**: 
-    *   **Visual Signals**: Agents analyze programmatically generated historical price charts (via `matplotlib`) and web images fetched from search results.
-    *   **Textual Context**: Processes real-time news snippets from **Exa** and **Tavily**.
-*   **Time-Travel Simulation (Anti-Cheating)**:
-    *   **Temporal Integrity**: A triple-layer defense (Native API filters + Query Engineering + **Temporal Guard** heuristics) ensures agents cannot see "future" news during historical simulations.
+    *   **Visual Signals**: Agents analyze programmatically generated historical price charts (via `matplotlib`) and web images (capped at 5 per step) via the OpenAI Vision API.
+    *   **Textual Context**: Processes rich news snippets from **Exa** and **Tavily** (Configurable content length).
+*   **Time-Travel Simulation (Zero-Leakage Integrity)**:
+    *   **Sub-second Cutoffs**: Implements strict `T-1s` news cutoff vs `T` market data, ensuring agents never see intraday "future" news.
+    *   **Sliding Window Logic**: Fully dynamic news context (T-14, T-30, etc.) driven by the `--window` flag.
+    *   **Temporal Integrity**: A triple-layer defense (Native API filters + Query Engineering + **Temporal Guard** heuristics) ensures agents cannot see "future" news.
     *   **Deterministic History**: Historical price data and charts are generated exactly as they would have appeared at the simulated timestamp.
 *   **Real Data Integration**:
     *   **Polymarket & Kalshi**: Robust providers for decentralized and regulated prediction markets.
     *   **Automated Charting**: Generates OHLC/Price charts on-the-fly for any historical window.
-*   **Portfolio Management**: Tracks Cash, Positions, PnL, and enforces financial constraints.
-*   **Recursive Memory**: Uses a "Journaling" mechanism where the agent passes its evolving worldview from Day N to Day N+1.
+*   **Portfolio Management**: Tracks Cash, Positions, PnL, and enforces financial constraints (Starting $1000).
+*   **Recursive Memory**: Uses a "Journaling" mechanism where the agent passes its evolving worldview, comparing signals against the **Market Resolution Rules**.
+*   **Persistent Configuration**: Supports `.env` file for API key persistence.
 
 ## 📂 Project Structure
 
 ```
-├── main.py                 # Core Simulation Entry point
+├── main.py                 # Core Simulation Entry point (ISO timestamp support)
+├── evaluate.py             # Ground Truth Metrics (Brier, MAE, ROI) launcher [NEW]
+├── .env.template           # Template for persistent API key configuration [NEW]
 ├── verify.py               # Mock verification loop
 ├── run_simulation.sh       # Interactive helper script
+├── raw_data/               # Human-readable daily snapshots [NEW]
 ├── charts/                 # Generated historical price charts
 └── src/
     ├── agents/
     │   ├── llm_agent.py    # Multi-turn logic & VLM handling
     │   ├── openai_provider.py # OpenAI Vision/Text wrapper (Base64 hardened)
-    │   └── prompts.py      # Multimodal system templates
+    │   └── prompts.py      # Dynamic window-aware system templates
     ├── core/
-    │   ├── environment.py  # Orchestration, Time-loops, & Logging
+    │   ├── environment.py  # Orchestration, Sub-second timing logic
     │   ├── portfolio.py    # Financial State Machine
     │   └── types.py        # Multimodal Action/Observation models
     └── data_loaders/
-        ├── polymarket.py   # Historical Gamma/CLOB/Chart API [NEW]
+        ├── polymarket.py   # Real-time Volume, Rules, & CLOB data fetcher [UPDATED]
         ├── kalshi.py       # Regulated exchange provider
-        └── context.py      # Multimodal News + Temporal Guard [UPDATED]
+        └── context.py      # Multimodal News + Strict Temporal Guard [UPDATED]
 ```
 
 ## 🚀 Getting Started
@@ -65,8 +71,14 @@ To prevent **Look-ahead Bias**, the project implements a sophisticated filtering
 2.  **Query Modifiers**: Appends temporal context to search queries (e.g., "news before [Date]").
 3.  **Heuristic Scan**: A secondary filter scans news headlines/content for "future outcome" keywords (e.g., "Defeated", "President-elect") to catch streaming updates that leak into historical results.
 
-## 📊 Evaluation & Logs
-Detailed logs (JSONL) capture every multimodal signal, the agent's visual reasoning, and portfolio shifts. View them in `logs/`.
+## 📊 Ground Truth Verification & Metrics
+Detailed logs (JSONL) capture every multimodal signal and portfolio shift. The system validates against:
+1.  **Price Calibration**: Brier Score and MAE via `evaluate.py`.
+2.  **Outcome Alignment**: Final ROI vs. market resolution.
+3.  **Rule Adherence**: Scraped from the Gamma API.
+4.  **Volume Correlation**: Conviction check using 24h market volume.
+
+View performance data in `logs/` and `raw_data/`.
 
 ## 🔮 Future Goals
 1.  **Open Source VLMs**: Integrate LLaVA and Yi-VL via local providers.
