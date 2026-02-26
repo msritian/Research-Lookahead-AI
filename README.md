@@ -8,10 +8,10 @@ A high-fidelity research platform for evaluating Large Language Models (LLMs) an
     *   **Visual Signals**: Agents analyze programmatically generated historical price charts (via `matplotlib`) and web images (capped at 5 per step) via the OpenAI Vision API.
     *   **Textual Context**: Processes rich news snippets from **Exa** and **Tavily** (Configurable content length).
 *   **Time-Travel Simulation (Zero-Leakage Integrity)**:
-    *   **Sub-second Cutoffs**: Implements strict `T-1s` news cutoff vs `T` market data, ensuring agents never see intraday "future" news.
+    *   **External Cutoffs**: Implements strict `T-1s` news cutoff vs `T` market data, ensuring agents never see intraday "future" news.
+    *   **Pre-training Bias Defense**: We cross-reference event dates against LLM knowledge cutoffs (e.g., GPT-4o's Oct 2023 cutoff) to ensure 100% "out-of-sample" testing.
     *   **Sliding Window Logic**: Fully dynamic news context (T-14, T-30, etc.) driven by the `--window` flag.
-    *   **Temporal Integrity**: A triple-layer defense (Native API filters + Query Engineering + **Temporal Guard** heuristics) ensures agents cannot see "future" news.
-    *   **Deterministic History**: Historical price data and charts are generated exactly as they would have appeared at the simulated timestamp.
+    *   **Temporal Guard**: A triple-layer defense (Native API filters + Query Engineering + Heuristic scans) catches streaming updates that might leak into historical results.
 *   **Real Data Integration**:
     *   **Polymarket & Kalshi**: Robust providers for decentralized and regulated prediction markets.
     *   **Automated Charting**: Generates OHLC/Price charts on-the-fly for any historical window.
@@ -27,9 +27,9 @@ A high-fidelity research platform for evaluating Large Language Models (LLMs) an
 ├── .env.template           # Template for persistent API key configuration [NEW]
 ├── verify.py               # Mock verification loop
 ├── run_simulation.sh       # Interactive helper script
-├── raw_data/               # Human-readable daily snapshots [NEW]
-├── charts/                 # Generated historical price charts
-└── src/
+├── runs/                   # Unified output hierarchy [NEW]
+│   └── [ticker]/[run_id]/  # Isolated folder per experiment
+├── .env.template           # Template for persistent API key configuration
     ├── agents/
     │   ├── llm_agent.py    # Multi-turn logic & VLM handling
     │   ├── openai_provider.py # OpenAI Vision/Text wrapper (Base64 hardened)
@@ -81,6 +81,13 @@ To evaluate a specific run:
 ```bash
 python3 evaluate.py --log_file runs/[ticker]/[run_id]/experiment.jsonl
 ```
+
+### 📈 Evaluation Metrics
+The evaluation script provides a deep-dive audit:
+*   **Belief vs. Price**: Real-time calibration checking (how much the agent "trusts" its news vs. the market price).
+*   **Brier Score**: Measures the accuracy of probabilistic predictions (lower is better).
+*   **ROI/PnL**: Financial tracking including **Slippage** and **Bid/Ask Spreads**.
+*   **Reasoning Audit**: Direct access to the agent's step-by-step logic for every trade.
 
 ## 🧠 Core Architecture: The "Temporal Guard"
 To prevent **Look-ahead Bias**, the project implements a sophisticated filtering engine:
