@@ -4,10 +4,9 @@ from datetime import datetime
 from typing import Any, Dict
 
 class ExperimentLogger:
-    def __init__(self, log_dir: str = "logs"):
-        os.makedirs(log_dir, exist_ok=True)
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.log_file = os.path.join(log_dir, f"experiment_{timestamp}.jsonl")
+    def __init__(self, run_dir: str = "logs"):
+        os.makedirs(run_dir, exist_ok=True)
+        self.log_file = os.path.join(run_dir, "experiment.jsonl")
         print(f"Logging experiment to: {self.log_file}")
 
     def log(self, event_type: str, data: Dict[str, Any]):

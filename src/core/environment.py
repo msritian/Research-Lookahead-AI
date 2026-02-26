@@ -19,7 +19,8 @@ class MarketEnvironment:
         logger: Optional[ExperimentLogger] = None,
         step_size: timedelta = timedelta(days=1),
         market_ids: List[str] = None,
-        context_window_days: int = 14
+        context_window_days: int = 14,
+        run_dir: str = "runs/default"
     ):
         self.current_time = start_date
         self.end_date = end_date
@@ -29,12 +30,20 @@ class MarketEnvironment:
         self.logger = logger
         self.portfolio = Portfolio()
         self.step_size = step_size
-        self.market_ids = market_ids or ["market_1"] # Default to one market if not specified
+        self.market_ids = market_ids or ["market_1"]
         self.context_window_days = context_window_days
         
         self.history: List[Dict[str, Any]] = []
-        self.raw_data_dir = "raw_data"
+        self.run_dir = run_dir
+        self.raw_data_dir = os.path.join(run_dir, "raw_data")
+        self.charts_dir = os.path.join(run_dir, "charts")
+        
         os.makedirs(self.raw_data_dir, exist_ok=True)
+        os.makedirs(self.charts_dir, exist_ok=True)
+        
+        # Propagate chart dir to provider
+        if hasattr(self.market_provider, 'charts_dir'):
+            self.market_provider.charts_dir = self.charts_dir
 
     def step(self):
         """
@@ -104,6 +113,7 @@ class MarketEnvironment:
         log_entry = {
             "timestamp": self.current_time.isoformat(),
             "market_prices": current_prices,
+            "execution_price": execution_price if action.action_type != TradeType.HOLD else None,
             "portfolio_value": self.portfolio.get_state(current_prices).total_value,
             "action": action.dict(),
             "observation": {

@@ -70,12 +70,16 @@ python3 main.py \
   --max-content 3000
 ```
 
-### 4. Evaluating Simulation Results (evaluate.py)
-After the simulation finishes, use the evaluation script to calculate MAE, Brier Score, and ROI:
+### 📊 Output & Results
+The system now uses a **Unified Run Directory** structure for better organization:
+`runs/[ticker]/[question_slug]_[timestamp]/`
+- `experiment.jsonl`: The machine-readable execution log (use for `evaluate.py`).
+- `raw_data/`: Daily JSON snapshots containing exactly what the agent read and thought.
+- `charts/`: Daily price charts (PNG) generated and analyzed by the agent.
 
+To evaluate a specific run:
 ```bash
-# Evaluate a specific log file
-python3 evaluate.py --log_file logs/experiment_20260223_011343.jsonl
+python3 evaluate.py --log_file runs/[ticker]/[run_id]/experiment.jsonl
 ```
 
 ## 🧠 Core Architecture: The "Temporal Guard"

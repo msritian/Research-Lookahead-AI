@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+import re
 from datetime import datetime, timedelta
 from src.core.environment import MarketEnvironment
 from src.agents.llm_agent import SequentialLLMAgent
@@ -24,6 +25,14 @@ def load_env():
                     key, val = line.split("=", 1)
                     os.environ[key.strip()] = val.strip().strip('"').strip("'")
         print(f"Loaded environment variables from {env_path}")
+
+def slugify(text: str) -> str:
+    """Converts a string to a safe filesystem-friendly slug."""
+    text = text.lower().strip()
+    text = re.sub(r'[^\w\s-]', '', text)
+    text = re.sub(r'[\s_-]+', '-', text)
+    text = re.sub(r'^-+|-+$', '', text)
+    return text
 
 def main():
     parser = argparse.ArgumentParser(description='Sequential Trader Simulation')
@@ -54,6 +63,15 @@ def main():
     context_window = args.window if args.window is not None else args.days
 
     print(f"--- Configuration ---")
+    
+    # 0. Generate Run Directory Slug
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    ticker_slug = slugify(args.ticker)
+    question_slug = slugify(args.question)[:50] # Cap length
+    run_id = f"{question_slug}_{timestamp}"
+    run_dir = os.path.join("runs", ticker_slug, run_id)
+    
+    print(f"Run Directory: {run_dir}")
     print(f"Provider: {args.provider}")
     print(f"Market: {args.ticker}")
     print(f"Question: {args.question}")
@@ -91,7 +109,7 @@ def main():
     agent = SequentialLLMAgent(llm_provider, market_question=args.question, max_content=args.max_content)
     
     # 3. Initialize Logger
-    logger = ExperimentLogger()
+    logger = ExperimentLogger(run_dir=run_dir)
     
     # 4. Run Environment
     env = MarketEnvironment(
@@ -102,7 +120,8 @@ def main():
         agent=agent,
         logger=logger,
         market_ids=[args.ticker],
-        context_window_days=context_window
+        context_window_days=context_window,
+        run_dir=run_dir
     )
     
     print("Starting Simulation...")
