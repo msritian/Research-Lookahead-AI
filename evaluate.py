@@ -1,7 +1,8 @@
 import os
 import json
 import argparse
-from typing import List, Dict, Any
+import requests
+from typing import List, Dict, Any, Optional
 
 def load_logs(log_file: str) -> List[Dict[str, Any]]:
     """Loads the step entries from a JSONL experiment log file."""
@@ -25,6 +26,29 @@ def load_logs(log_file: str) -> List[Dict[str, Any]]:
                 except json.JSONDecodeError:
                     continue
     return steps
+
+def get_polymarket_result(market_slug: str) -> Optional[str]:
+    """Fetches the final resolution result for a market from Polymarket Gamma API."""
+    try:
+        url = "https://gamma-api.polymarket.com/public-search"
+        resp = requests.get(url, params={"q": market_slug})
+        resp.raise_for_status()
+        data = resp.json()
+        
+        markets = []
+        if isinstance(data, dict) and "events" in data:
+            for event in data["events"]:
+                markets.extend(event.get("markets", []))
+        
+        for m in markets:
+            if m.get("slug") == market_slug:
+                winner = m.get("winner")
+                if winner and winner != "UNKNOWN":
+                    return winner
+        return None
+    except Exception as e:
+        print(f"Error fetching Polymarket result: {e}")
+        return None
 
 def evaluate_run(log_file: str):
     """Calculates ground truth verification metrics from a simulation run."""
@@ -120,16 +144,44 @@ def evaluate_run(log_file: str):
         final_price = final_prices[market_id]
         held_quantity = final_positions.get(market_id, 0)
         
-        print(f"Final Market T-Price: {final_price:.2f}")
+        # 1. Try to get Winner from logged Metadata first (most reliable)
+        metadata_winner = None
+        for step in steps:
+            if step.get("event_type") == "metadata":
+                metadata_winner = step.get("data", {}).get("winner")
+                break
+        
+        if metadata_winner:
+            print(f"Logged Resolution (Metadata): {metadata_winner}")
+            implied_truth = metadata_winner.upper()
+        else:
+            # 2. Try to get Archived Truth from API
+            archived_winner = get_polymarket_result(market_id)
+            if archived_winner and archived_winner != "UNKNOWN":
+                print(f"Archived Resolution (API): {archived_winner}")
+                implied_truth = archived_winner.upper() # "YES" or "NO"
+            else:
+                # 3. Fallback to Price Proxy (only if not at stalemate)
+                if abs(final_price - 0.50) < 1e-6:
+                    print(f"Predicted Outcome: STALEMATE (Price: {final_price:.2f})")
+                    implied_truth = "UNKNOWN"
+                else:
+                    print(f"Predicted Outcome (Price Proxy): {final_price:.2f}")
+                    implied_truth = "YES" if final_price > 0.5 else "NO"
+
         print(f"Final Agent Position: {held_quantity} shares")
+        agent_bet = "YES" if held_quantity > 0 else ("NO" if held_quantity < 0 else "NEUTRAL")
         
-        implied_truth = "YES" if final_price > 0.5 else "NO"
-        agent_bet = "YES" if held_quantity > 0 else "NO/NEUTRAL"
-        
-        if implied_truth == "YES" and agent_bet == "YES":
+        if implied_truth == "UNKNOWN":
+            print("Verdict: INCONCLUSIVE. No clear ground truth available (Unresolved or Stale Data).")
+        elif implied_truth == "YES" and agent_bet == "YES":
             print("Verdict: SUCCESS. Agent held positions for the winning outcome.")
+        elif implied_truth == "NO" and agent_bet == "NO":
+             print("Verdict: SUCCESS. Agent stayed away/shorted the losing outcome.")
         elif implied_truth == "NO" and agent_bet == "YES":
             print("Verdict: FAILED. Agent held positions for the losing outcome.")
+        elif implied_truth == "YES" and agent_bet == "NO":
+            print("Verdict: FAILED. Agent did not bet on the winning outcome.")
         else:
             print("Verdict: NEUTRAL/CAUTIOUS. Agent held no positions.")
             

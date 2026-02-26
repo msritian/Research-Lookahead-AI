@@ -2,7 +2,9 @@ import os
 import base64
 import mimetypes
 import requests
+import io
 from typing import List, Optional
+from PIL import Image
 from openai import OpenAI
 from src.core.llm_interface import LLMProvider
 
@@ -32,12 +34,35 @@ class OpenAIProvider(LLMProvider):
                 mime_type = resp.headers.get('Content-Type', '').split(';')[0].strip()
                 data = resp.content
 
-            # Only proceed with valid image mime types
-            if not mime_type or not mime_type.startswith('image/'):
+            # OpenAI Vision only supports specific formats: png, jpeg, gif, webp
+            # See: https://platform.openai.com/docs/guides/vision/limitations
+            ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
+            
+            # --- AVIF Conversion ---
+            if mime_type == 'image/avif':
+                try:
+                    print(f"[Image Conv] Converting AVIF to JPEG: {image_source[:60]}...")
+                    img = Image.open(io.BytesIO(data))
+                    # Convert to RGB to ensure JPEG compatibility (removes alpha if present)
+                    if img.mode in ("RGBA", "P"):
+                        img = img.convert("RGB")
+                    
+                    output = io.BytesIO()
+                    img.save(output, format="JPEG", quality=85)
+                    data = output.getvalue()
+                    mime_type = "image/jpeg"
+                except Exception as conv_err:
+                    print(f"[Image Skip] Failed to convert AVIF: {conv_err}")
+                    return None
+
+            if not mime_type or mime_type not in ALLOWED_TYPES:
+                if mime_type:
+                    print(f"[Image Skip] {image_source[:60]}... → Unsupported format: {mime_type}")
                 return None
 
             # Skip empty or tiny responses (likely error pages)
             if len(data) < 1000:
+                print(f"[Image Skip] {image_source[:60]}... → File too small ({len(data)} bytes)")
                 return None
 
             encoded = base64.b64encode(data).decode('utf-8')
@@ -55,11 +80,11 @@ class OpenAIProvider(LLMProvider):
         user_content.append({"type": "text", "text": user_prompt})
 
         # Add images — download and base64-encode locally to avoid CDN blocks
-        # Cap at 5 images per call to manage token usage
+        # Cap at 3 images per call to prevent LLM distraction/context fatigue
         if image_urls:
             encoded_count = 0
             for url in image_urls:
-                if not url or encoded_count >= 5:
+                if not url or encoded_count >= 3:
                     break
                 image_payload = self._encode_image(url)
                 if image_payload:

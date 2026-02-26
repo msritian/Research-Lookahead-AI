@@ -19,11 +19,117 @@ class PolymarketDataProvider(DataProvider):
         self.charts_dir = "charts"
         os.makedirs(self.charts_dir, exist_ok=True)
 
-    def get_market_snapshot(self, market_id: str, timestamp: datetime) -> MarketSnapshot:
+    def discover_markets(self, query: str, limit: int = 5, only_active: bool = False, sort_latest: bool = False) -> List[Dict[str, Any]]:
+        """
+        Searches for markets matching the query. Supports archived/closed markets.
+        """
+        print(f"Discovering markets for: {query} (limit={limit}, only_active={only_active}, sort_latest={sort_latest})")
+        try:
+            # For search, we fetch a bit more than limit if we need to sort by date manually
+            fetch_limit = limit * 3 if sort_latest else limit
+            
+            params = {
+                "q": query,
+                "limit": fetch_limit
+            }
+            if only_active:
+                params["active"] = "true"
+            else:
+                params["active"] = "false"
+                params["archived"] = "true"
+                params["closed"] = "true"
+
+            url = f"{self.GAMMA_URL}/markets"
+            search_url = f"{self.GAMMA_URL}/public-search"
+            
+            resp = requests.get(search_url, params=params)
+            resp.raise_for_status()
+            search_data = resp.json()
+
+            raw_markets = []
+            if isinstance(search_data, dict) and "events" in search_data:
+                for event in search_data["events"]:
+                    raw_markets.extend(event.get("markets", []))
+            elif isinstance(search_data, list):
+                raw_markets = search_data
+
+            # Fallback to general markets if search is empty
+            if not raw_markets:
+                # Add native sorting for the general list if requested
+                if sort_latest:
+                    params["order"] = "closedTime"
+                    params["ascending"] = "false"
+                
+                resp = requests.get(url, params=params)
+                resp.raise_for_status()
+                raw_markets = resp.json()
+
+            # Filter and format
+            results = []
+            for m in raw_markets:
+                if not isinstance(m, dict): continue
+                
+                # Extract the 'Yes' token
+                tokens_raw = m.get("clobTokenIds", "[]")
+                outcomes_raw = m.get("outcomes", "[]")
+                try:
+                    token_ids = json.loads(tokens_raw) if isinstance(tokens_raw, str) else tokens_raw
+                    outcomes = json.loads(outcomes_raw) if isinstance(outcomes_raw, str) else outcomes_raw
+                except: continue
+
+                yes_token = None
+                if outcomes and token_ids and len(outcomes) == len(token_ids):
+                    for i, o in enumerate(outcomes):
+                        if o.lower() == "yes":
+                            yes_token = token_ids[i]
+                            break
+                
+                if not yes_token: continue
+
+                results.append({
+                    "ticker": m.get("slug", ""),
+                    "question": m.get("question", ""),
+                    "end_date": m.get("endDateIso", m.get("endDate", "")),
+                    "token_id": yes_token,
+                    "rules": m.get("description", ""),
+                    "closed": m.get("closed", False),
+                    "winner": m.get("winner"), # Capture winner for hindsight evaluation
+                    "status": m.get("status", ""),
+                    "resolution_source": m.get("resolutionSource", ""),
+                    "last_trade_price": m.get("lastTradePrice")
+                })
+            
+            # Manual sort for search results if requested
+            if sort_latest:
+                results.sort(key=lambda x: x['end_date'] or "", reverse=True)
+
+            # [FIX] For Hindsight (only_active=False), only return if we have a winner
+            if not only_active:
+                for r in results:
+                    if r.get("winner") is None:
+                        # Fallback for resolved markets where 'winner' might be missing in search
+                        # but implied by price or status
+                        if r.get("last_trade_price") in [0, 1]:
+                            r["winner"] = "Yes" if r["last_trade_price"] == 1 else "No"
+                        elif r.get("status") == "resolved":
+                             # If we still don't know the winner, it's risky but better than nothing
+                             # Actually let's be strict but log it
+                             print(f"DEBUG: Market {r['ticker']} resolved but winner unknown in search.")
+
+                count_before = len(results)
+                results = [r for r in results if r.get("winner") is not None]
+                print(f"Hindsight Filter: {len(results)}/{count_before} markets are resolved.")
+
+            return results[:limit]
+        except Exception as e:
+            print(f"Error discovering markets: {e}")
+            return []
+
+    def get_market_snapshot(self, market_id: str, timestamp: datetime) -> Optional[MarketSnapshot]:
         # 1. Resolve to Token ID
         token_id = self._resolve_token(market_id)
         if not token_id:
-            return self._placeholder(market_id, timestamp)
+            return None
 
         # 2. Fetch History for the relevant range if needed
         ts_val = timestamp.timestamp()
@@ -35,12 +141,12 @@ class PolymarketDataProvider(DataProvider):
         relevant = [p for p in history if p['t'] <= ts_val]
 
         if not relevant:
-            return self._placeholder(market_id, timestamp)
+            return None
 
         last_p = relevant[-1]
         # Valid if within 2 days
         if abs(ts_val - last_p['t']) > 86400 * 2:
-             return self._placeholder(market_id, timestamp)
+             return None
 
         price = float(last_p['p'])
         

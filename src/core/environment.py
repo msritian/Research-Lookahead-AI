@@ -57,6 +57,9 @@ class MarketEnvironment:
         current_prices = {}
         for m_id in self.market_ids:
             snapshot = self.market_provider.get_market_snapshot(m_id, self.current_time)
+            if snapshot is None:
+                print(f"ERROR: No market data found for {m_id} at {self.current_time}. Stopping simulation.")
+                raise ValueError(f"Missing price history for {m_id}")
             snapshots[m_id] = snapshot
             current_prices[m_id] = snapshot.last_price
 

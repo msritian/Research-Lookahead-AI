@@ -34,53 +34,11 @@ def slugify(text: str) -> str:
     text = re.sub(r'^-+|-+$', '', text)
     return text
 
-def main():
-    parser = argparse.ArgumentParser(description='Sequential Trader Simulation')
-    parser.add_argument('--ticker', type=str, default="Bitcoin", help='Market Ticker or Search Query')
-    parser.add_argument('--question', type=str, default="Will Bitcoin reach $100k by 2025?", help='The specific question to predict')
-    parser.add_argument('--start-date', type=str, default="2024-03-01", help='Start date YYYY-MM-DD')
-    parser.add_argument('--days', type=int, default=14, help='Duration in days to run the simulation')
-    parser.add_argument('--window', type=int, default=None, help='Context window in days for news/data (defaults to same as --days)')
-    parser.add_argument('--max-content', type=int, default=2000, help='Maximum characters per news article content')
-    parser.add_argument('--mock', action='store_true', help='Use mock LLM instead of OpenAI')
-    parser.add_argument('--provider', type=str, default="polymarket", choices=["kalshi", "polymarket"], help='Data provider to use')
-    
-    args = parser.parse_args()
-    load_env()
-
-    # Parse Dates (Supports YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)
-    try:
-        if 'T' in args.start_date:
-            start_date = datetime.strptime(args.start_date, "%Y-%m-%dT%H:%M:%S")
-        else:
-            start_date = datetime.strptime(args.start_date, "%Y-%m-%d")
-    except ValueError:
-        print(f"Invalid date format: {args.start_date}. Use YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS")
-        sys.exit(1)
-        
+def run_simulation(args, market_ticker, market_question, start_date, context_window, run_dir, metadata=None):
+    """Orchestrates a single simulation run."""
+    print(f"\n--- Initializing Simulation: {market_ticker} ---")
     end_date = start_date + timedelta(days=args.days)
     
-    context_window = args.window if args.window is not None else args.days
-
-    print(f"--- Configuration ---")
-    
-    # 0. Generate Run Directory Slug
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    ticker_slug = slugify(args.ticker)
-    question_slug = slugify(args.question)[:50] # Cap length
-    run_id = f"{question_slug}_{timestamp}"
-    run_dir = os.path.join("runs", ticker_slug, run_id)
-    
-    print(f"Run Directory: {run_dir}")
-    print(f"Provider: {args.provider}")
-    print(f"Market: {args.ticker}")
-    print(f"Question: {args.question}")
-    print(f"Period: {start_date.date()} to {end_date.date()} ({args.days} days)")
-    print(f"Context Window: {context_window} days")
-    print(f"Max Content: {args.max_content} chars")
-    print(f"Mode: {'MOCK' if args.mock else 'REAL (OpenAI)'}")
-    print(f"---------------------")
-
     # 1. Initialize Data Providers
     if args.provider == "kalshi":
         kalshi_key = os.environ.get("KALSHI_API_KEY")
@@ -89,10 +47,9 @@ def main():
         market_provider = PolymarketDataProvider()
     
     # Context (Exa/Tavily)
-    # They check their own env vars
     context_provider = ContextDataProvider(
         sources=["exa", "tavily"],
-        query_template=f"{{ticker}} {args.question} news", # Inject question into search
+        query_template=f"{{ticker}} {market_question} news",
         max_content=args.max_content
     )
     
@@ -106,10 +63,10 @@ def main():
             sys.exit(1)
         llm_provider = OpenAIProvider(api_key=openai_key)
         
-    agent = SequentialLLMAgent(llm_provider, market_question=args.question, max_content=args.max_content)
+    agent = SequentialLLMAgent(llm_provider, market_question=market_question, max_content=args.max_content)
     
     # 3. Initialize Logger
-    logger = ExperimentLogger(run_dir=run_dir)
+    logger = ExperimentLogger(run_dir=run_dir, metadata=metadata)
     
     # 4. Run Environment
     env = MarketEnvironment(
@@ -119,21 +76,123 @@ def main():
         context_provider=context_provider,
         agent=agent,
         logger=logger,
-        market_ids=[args.ticker],
+        market_ids=[market_ticker],
         context_window_days=context_window,
         run_dir=run_dir
     )
     
-    print("Starting Simulation...")
+    print(f"Starting Simulation Period: {start_date.date()} to {end_date.date()}")
     try:
         env.run()
     except KeyboardInterrupt:
         print("\nSimulation stopped by user.")
+        return None
     
-    # Print Summary
-    final_val = env.portfolio.get_state({}).total_value
-    print(f"\nSimulation Complete.")
-    print(f"Final Portfolio Value: ${final_val:.2f}")
+    return env.portfolio.get_state({}).total_value
+
+def main():
+    parser = argparse.ArgumentParser(description='Sequential Trader Simulation')
+    parser.add_argument('--ticker', type=str, default="Bitcoin", help='Market Ticker or Search Query')
+    parser.add_argument('--question', type=str, default="Will Bitcoin reach $100k by 2025?", help='The specific question to predict')
+    parser.add_argument('--start-date', type=str, default="2024-03-01", help='Start date YYYY-MM-DD')
+    parser.add_argument('--days', type=int, default=14, help='Duration in days to run the simulation')
+    parser.add_argument('--window', type=int, default=None, help='Context window in days for news/data (defaults to same as --days)')
+    parser.add_argument('--max-content', type=int, default=2000, help='Maximum characters per news article content')
+    parser.add_argument('--mock', action='store_true', help='Use mock LLM instead of OpenAI')
+    parser.add_argument('--provider', type=str, default="polymarket", choices=["kalshi", "polymarket"], help='Data provider to use')
+    
+    # Hindsight Options
+    parser.add_argument('--hindsight-query', type=str, help='Search for archived/closed markets by keyword')
+    parser.add_argument('--hindsight-limit', type=int, default=3, help='Max number of archived markets to simulate')
+    parser.add_argument('--sort-latest', action='store_true', help='Sort hindsight results by latest end date')
+
+    args = parser.parse_args()
+    load_env()
+
+    # Determine Simulation Targets
+    targets = []
+    if args.hindsight_query:
+        print(f"Hindsight Engine: Discovering historical markets for '{args.hindsight_query}'...")
+        discovery_provider = PolymarketDataProvider() if args.provider == "polymarket" else KalshiDataProvider()
+        found_markets = discovery_provider.discover_markets(
+            args.hindsight_query, 
+            limit=args.hindsight_limit,
+            sort_latest=args.sort_latest
+        )
+        
+        if not found_markets:
+            print("No archived markets found for query.")
+            sys.exit(0)
+            
+        for m in found_markets:
+            # Parse endDate: can be "2024-07-26" or ISO
+            end_val = m['end_date']
+            try:
+                if 'T' in end_val:
+                    end_dt = datetime.fromisoformat(end_val.replace('Z', '+00:00')).replace(tzinfo=None)
+                else:
+                    end_dt = datetime.strptime(end_val, "%Y-%m-%d")
+            except:
+                print(f"Warning: Could not parse end date {end_val} for {m['ticker']}, skipping.")
+                continue
+
+            start_dt = end_dt - timedelta(days=args.days)
+            targets.append({
+                "ticker": m['ticker'],
+                "question": m['question'],
+                "start_date": start_dt,
+                "metadata": {
+                    "winner": m.get('winner'),
+                    "rules": m.get('rules'),
+                    "closed": m.get('closed')
+                }
+            })
+    else:
+        # Standard Single Targeted Target
+        try:
+            if 'T' in args.start_date:
+                start_dt = datetime.strptime(args.start_date, "%Y-%m-%dT%H:%M:%S")
+            else:
+                start_dt = datetime.strptime(args.start_date, "%Y-%m-%d")
+        except ValueError:
+            print(f"Invalid date format: {args.start_date}. Use YYYY-MM-DD")
+            sys.exit(1)
+            
+        targets.append({
+            "ticker": args.ticker,
+            "question": args.question,
+            "start_date": start_dt
+        })
+
+    print(f"Found {len(targets)} targets for simulation.")
+
+    # Loop through targets
+    for target in targets:
+        context_window = args.window if args.window is not None else args.days
+        
+        # Generate Run Directory
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        ticker_slug = slugify(target['ticker'])
+        question_slug = slugify(target['question'])[:50]
+        run_id = f"{question_slug}_{timestamp}"
+        run_dir = os.path.join("runs", ticker_slug, run_id)
+        
+        final_val = run_simulation(
+            args=args,
+            market_ticker=target['ticker'],
+            market_question=target['question'],
+            start_date=target['start_date'],
+            context_window=context_window,
+            run_dir=run_dir,
+            metadata=target.get('metadata')
+        )
+        
+        if final_val is not None:
+            print(f"\n--- Simulation Complete ---")
+            print(f"Ticker: {target['ticker']}")
+            print(f"Final Value: ${final_val:.2f}")
+            print(f"Log: {os.path.join(run_dir, 'experiment.jsonl')}")
+            print(f"---------------------------\n")
 
 if __name__ == "__main__":
     main()
