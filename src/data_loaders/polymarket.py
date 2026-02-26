@@ -17,6 +17,7 @@ class PolymarketDataProvider(DataProvider):
         self._history_cache: Dict[str, List[Dict[str, Any]]] = {} # token_id -> history
         self._fetched_ranges: Dict[str, List[tuple]] = {} # token_id -> [(start, end)]
         self.charts_dir = "charts"
+        self.lookback_days = 7 # Default, can be overridden by Environment
         os.makedirs(self.charts_dir, exist_ok=True)
 
     def discover_markets(self, query: str, limit: int = 5, only_active: bool = False, sort_latest: bool = False) -> List[Dict[str, Any]]:
@@ -175,8 +176,8 @@ class PolymarketDataProvider(DataProvider):
         if not history: return None
         
         try:
-            # Last 7 days of history for the chart
-            window_start = current_ts.timestamp() - (86400 * 7)
+            # Match the chart window to the simulation context window
+            window_start = current_ts.timestamp() - (86400 * self.lookback_days)
             chart_data = [p for p in history if p['t'] >= window_start]
             
             if len(chart_data) < 2: return None

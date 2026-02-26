@@ -41,9 +41,11 @@ class MarketEnvironment:
         os.makedirs(self.raw_data_dir, exist_ok=True)
         os.makedirs(self.charts_dir, exist_ok=True)
         
-        # Propagate chart dir to provider
+        # Propagate chart dir and window to provider
         if hasattr(self.market_provider, 'charts_dir'):
             self.market_provider.charts_dir = self.charts_dir
+        if hasattr(self.market_provider, 'lookback_days'):
+            self.market_provider.lookback_days = self.context_window_days
 
     def step(self):
         """

@@ -33,8 +33,6 @@ class SequentialLLMAgent(Agent):
             if date_str not in news_by_date:
                 news_by_date[date_str] = []
             news_by_date[date_str].append(f"[{n.source}] {n.headline}: {n.content[:self.max_content]}")
-            if n.image_url:
-                image_urls.append(n.image_url)  # Collect for multimodal context
                 
         # Format the grouped string
         news_strs = []
@@ -45,10 +43,16 @@ class SequentialLLMAgent(Agent):
 
         news_str = "\n".join(news_strs) if news_strs else "No news available for the given timeframe."
 
-        # 2b. Polymarket chart images (local .png files — safe to base64 encode)
+        # 2b. Market chart images (local .png files) -> Priority #1
+        # We append these FIRST so they are never cut off by the image cap
         for mid, snap in observation.market_snapshots.items():
             if snap.image_url:
                 image_urls.append(snap.image_url)
+
+        # 2c. News images -> Priority #2
+        for n in observation.news:
+            if n.image_url:
+                image_urls.append(n.image_url)
 
         # 3. Format Portfolio
         positions_str = str(observation.portfolio.positions)
