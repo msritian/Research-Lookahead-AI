@@ -64,12 +64,28 @@ def evaluate_run(log_file: str):
             market_id = list(actual_prices.keys())[0]
             true_price = actual_prices[market_id]
             
+            # Get action details
+            action_data = step.get("action", {})
+            action_type = action_data.get("action_type", action_data.get("action", "HOLD"))
+            quantity = action_data.get("quantity", 0)
+            
+            # Use logged execution price if available, else fallback to market price
+            exec_price = gt_data.get("execution_price")
+            if exec_price is None or exec_price == 0:
+                exec_price = true_price
+            
             error = abs(agent_belief - true_price)
             total_error += error
             total_squared_error += (agent_belief - true_price) ** 2
             valid_points += 1
             
-            print(f"Day {i+1:2d} | Price: {true_price:.2f} | Belief: {agent_belief:.2f} | Err: {error:.2f} | Portfolio: ${current_value:7.2f}")
+            # Format action string: e.g. "BUY 100 @ 0.33" or "HOLD"
+            if action_type != "HOLD" and quantity > 0:
+                action_str = f"{action_type} {quantity} @ {exec_price:.2f}"
+            else:
+                action_str = "HOLD"
+                
+            print(f"Day {i+1:2d} | {action_str:15s} | Price: {true_price:.2f} | Belief: {agent_belief:.2f} | Err: {error:.2f} | Portfolio: ${current_value:7.2f}")
 
     if valid_points > 0:
         mae = total_error / valid_points

@@ -104,6 +104,7 @@ class MarketEnvironment:
         log_entry = {
             "timestamp": self.current_time.isoformat(),
             "market_prices": current_prices,
+            "execution_price": execution_price if action.action_type != TradeType.HOLD else None,
             "portfolio_value": self.portfolio.get_state(current_prices).total_value,
             "action": action.dict(),
             "observation": {
