@@ -90,7 +90,7 @@ def evaluate_run(log_file: str):
             else:
                 action_str = "HOLD"
                 
-            print(f"Day {i+1:2d} | {action_str:15s} | Start-Cash: ${cash_left:7.2f} | Start-Pos: {current_pos:3d} | Price: {true_price:.2f} | End-Portfolio: ${current_value:7.2f}")
+            print(f"Day {i+1:2d} | {action_str:15s} | Start-Cash: ${cash_left:7.2f} | Start-Pos: {current_pos:3d} | Price: {true_price:.2f} | Belief: {agent_belief:.2f} | End-Portfolio: ${current_value:7.2f}")
 
     if valid_points > 0:
         mae = total_error / valid_points
