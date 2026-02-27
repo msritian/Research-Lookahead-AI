@@ -41,9 +41,11 @@ class MarketEnvironment:
         os.makedirs(self.raw_data_dir, exist_ok=True)
         os.makedirs(self.charts_dir, exist_ok=True)
         
-        # Propagate chart dir to provider
+        # Propagate chart dir and window to provider
         if hasattr(self.market_provider, 'charts_dir'):
             self.market_provider.charts_dir = self.charts_dir
+        if hasattr(self.market_provider, 'lookback_days'):
+            self.market_provider.lookback_days = self.context_window_days
 
     def step(self):
         """
@@ -57,6 +59,9 @@ class MarketEnvironment:
         current_prices = {}
         for m_id in self.market_ids:
             snapshot = self.market_provider.get_market_snapshot(m_id, self.current_time)
+            if snapshot is None:
+                print(f"ERROR: No market data found for {m_id} at {self.current_time}. Stopping simulation.")
+                raise ValueError(f"Missing price history for {m_id}")
             snapshots[m_id] = snapshot
             current_prices[m_id] = snapshot.last_price
 

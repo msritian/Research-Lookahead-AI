@@ -4,10 +4,14 @@ from datetime import datetime
 from typing import Any, Dict
 
 class ExperimentLogger:
-    def __init__(self, run_dir: str = "logs"):
+    def __init__(self, run_dir: str = "logs", metadata: Dict[str, Any] = None):
         os.makedirs(run_dir, exist_ok=True)
         self.log_file = os.path.join(run_dir, "experiment.jsonl")
         print(f"Logging experiment to: {self.log_file}")
+        
+        # Log initial metadata (e.g. resolution rules, expected winner)
+        if metadata:
+            self.log("metadata", metadata)
 
     def log(self, event_type: str, data: Dict[str, Any]):
         """

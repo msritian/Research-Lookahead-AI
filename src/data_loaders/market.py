@@ -1,16 +1,24 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
-from typing import List, Dict
+from typing import List, Dict, Any, Optional
 from ..core.types import MarketSnapshot, NewsItem
 import random
 
 class DataProvider(ABC):
     @abstractmethod
-    def get_market_snapshot(self, market_id: str, timestamp: datetime) -> MarketSnapshot:
+    def get_market_snapshot(self, market_id: str, timestamp: datetime) -> Optional[MarketSnapshot]:
         pass
 
     @abstractmethod
     def get_news(self, timestamp_start: datetime, timestamp_end: datetime) -> List[NewsItem]:
+        pass
+
+    @abstractmethod
+    def discover_markets(self, query: str, limit: int = 5, only_active: bool = False, sort_latest: bool = False) -> List[Dict[str, Any]]:
+        """
+        Searches for markets matching the query.
+        Returns a list of market metadata.
+        """
         pass
 
 class MockDataProvider(DataProvider):
@@ -20,7 +28,7 @@ class MockDataProvider(DataProvider):
     def __init__(self):
         self._prices: Dict[str, float] = {}
 
-    def get_market_snapshot(self, market_id: str, timestamp: datetime) -> MarketSnapshot:
+    def get_market_snapshot(self, market_id: str, timestamp: datetime) -> Optional[MarketSnapshot]:
         # Simple random walk for price
         current_price = self._prices.get(market_id, 0.50)
         change = random.uniform(-0.05, 0.05)
@@ -48,4 +56,7 @@ class MockDataProvider(DataProvider):
                 content="This is a generated news item for testing.",
                 image_url="http://placeholder.com/chart.png"
             )]
+        return []
+
+    def discover_markets(self, query: str, limit: int = 5, only_active: bool = False, sort_latest: bool = False) -> List[Dict[str, Any]]:
         return []

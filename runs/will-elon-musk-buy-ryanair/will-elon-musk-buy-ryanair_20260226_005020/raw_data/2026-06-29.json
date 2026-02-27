@@ -1,0 +1,42 @@
+{
+  "date": "2026-06-29",
+  "context_window": "2026-06-26 to 2026-06-28 (cutoff: 2026-06-28 23:59:59)",
+  "market_data": {
+    "will-elon-musk-buy-ryanair": {
+      "price": 0.5,
+      "bid": 0.49,
+      "ask": 0.51,
+      "volume": 0,
+      "chart_image": null
+    }
+  },
+  "market_rules": "On January 16, Elon Musk posted that buying Ryanair might be a \"good idea.\" You can read more about that here: https://x.com/elonmusk/status/2012172825444913299\n\nThis market will resolve to \u201cYes\u201d if credible reporting confirms that Elon Musk, either personally or through an entity led or majority owned by him, enters into an agreement to buy Ryanair by June 30, 2026, 11:59 PM ET. Otherwise, this market will resolve to \u201cNo\u201d.\n\nAn announced agreement between Elon Musk and Ryanair will qualify for a \u201cYes\u201d resolution, regardless of whether the acquisition is ultimately completed.\n\nAn agreement to merge with a qualifying entity will count toward \"Yes\" resolution.\n\nThe primary resolution source for this market is official information from Elon Musk and Ryanair, however a consensus of credible reporting will also be used.",
+  "news": [
+    {
+      "date": "2026-06-26",
+      "source": "Exa",
+      "headline": "Ryanair boss thanks Elon Musk for 'boost' in sales after online row",
+      "content": "Ryanair boss thanks Elon Musk for &#x27;boost&#x27; in sales after online row\n[Skip to content] \n[Watch Live] \n[British Broadcasting Corporation] \n[Home] \nNews\n[Sport] \nBusiness\nInnovation\n[Health] \nCulture\nArts\nTravel\nEarth\nAudio\nVideo\nLive\nDocumentaries\n[Weather] \n[Newsletters] \n[Watch Live] \n# Ryanair boss thanks Elon Musk for &#x27;boost&#x27; in ticket sales after online row\n7 days ago\nShareSave\nEmer Moreau,Business reporterand\nSimon Browning,Transport producer\nShareSave\n![]![Reuters A composite image showing two middle aged men with silly expressions on their faces] Reuters\nRyanair boss Michael O&#x27;Leary and tech billionaire Elon Musk have been trading barbs over the airline&#x27;s decision not to use Musk&#x27;s Starlink satellite internet product\nRyanair boss Michael O&#x27;Leary has thanked Elon Musk for all the additional publicity that their online spat has brought his airline, saying sales have risen two to three percent in the last five days.\nMusk has suggested he could buy the budget airline and called O&#x27;Leary &quot;insufferable&quot; and &quot;an idiot&quot;, after O&#x27;Leary rejected the idea of using Musk&#x27;s Starlink technology to provide wifi on flights.\nAt a press conference on Wednesday, O&#x27;Leary said he takes &quot;no insult&quot; at Musk&#x27;s jibes, and that he is regularly insulted at home by his four teenage children and many others.\nHe also said Musk is &quot;free&quot; to invest in Ryanair shares, but under EU laws, Musk could not own a majority of a European airline.\nMusk is the world&#x27;s richest man with an estimated net worth of $769bn (\u00a3573bn), and O&#x27;Leary runs Europe&#x27;s busiest airline. Both are known to court media attention with strong language and provocative statements.\nO&#x27;Leary said at the press conference that his team is going to X&#x27;s office in Dublin to give Musk a free Ryanair ticket to thank him for the &quot;wonderful boost&quot; in publicity he&#x27;s had.\n&quot;If he wants to call me",
+      "image_url": "https://ichef.bbci.co.uk/news/1024/branded_news/f992/live/2f9caa10-f6c2-11f0-b5f7-49f0357294ff.png"
+    },
+    {
+      "date": "2026-06-26",
+      "source": "Exa",
+      "headline": "Ryanair/SpaceX: could Musk really buy the airline? - The Week",
+      "content": "Ryanair/SpaceX: could Musk really buy the airline? | The Week\n# Ryanair/SpaceX: could Musk really buy the airline?\nIrish budget carrier has become embroiled in unlikely feud with the world&rsquo;s wealthiest man\nBy[The Week UK] \npublished24 January 2026\n![Elon Musk looking thoughtful] \nMusk has followed through on outlandish threats before\n(Image credit: Krisztian Bocsi / Bloomberg / Getty Images)\nShare\nShare by:\n* Copy link\n* [Facebook] \n* [X] \n* [Linkedin] \n* [Whatsapp] \n* [Pinterest] \nShare this article\nJoin the conversation\n[Follow us] \nAdd us as a preferred source on Google\n[Newsletter] \nSubscribe to our newsletter\nWhen Ryanair boss Michael O&rsquo;Leary ruled out installing SpaceX&rsquo;s Starlink internet in the company&rsquo;s planes &ndash; claiming the cost of installing the aerial antennas was unaffordable &ndash; he triggered a &ldquo;bizarre feud&rdquo;, said Peter Campbell in the[FT]. It culminated in a suggestion from[Elon Musk] that he might buy the Irish carrier, if only to fire its &ldquo;utter idiot&rdquo; chief executive.\nThe spat between two of the most provocative business leaders quickly went viral. While O&rsquo;Leary dismissed X/Twitter as a &ldquo;cesspit&rdquo; and claimed Musk knew &ldquo;zero&rdquo; about planes, Musk retorted with a poll titled &ldquo;Buy Ryanair and restore Ryan as their rightful ruler&rdquo; (its founder Tony Ryan died in 2007).\n[] \nThe[Ryanair] chief argues the antennas would result in a &ldquo;2% fuel drag&rdquo;, said Julia Kollewe in[The Guardian] &ndash; adding $200-$250 million per year to the company&rsquo;s $5 billion annual fuel bill, which he couldn&rsquo;t recoup. While a buyout may look like &ldquo;idle talk&rdquo;, Musk &ldquo;has followed through on such threats before&rdquo; &ndash; as Twitter discovered in 2022.\n## The Week\nEscape your echo chamber. Get the facts behind the news, plus analysis from multiple perspectives.\n[\nSUBSCRIBE &amp; SAVE\n] \n![https://cdn.mos.cms.futurecdn.net/flexiimages/jacafc5z",
+      "image_url": "https://cdn.mos.cms.futurecdn.net/STiw29HiVjkjEkG7dR5VUD-2000-80.jpg"
+    },
+    {
+      "date": "2026-06-26",
+      "source": "Exa",
+      "headline": "Elon Musk suggests he could buy Ryanair amid spat with boss ...",
+      "content": "Your privacy choices\n# guce\n[![]![] guce] \nYour privacy is important to us\nYahoo is part of theYahoo family of brands![] The sites and apps that we own and operate, including Yahoo and Engadget, and our digital advertising service, Yahoo Advertising.Yahoo family of brands.\nWhen you use our sites and apps, we useCookies![] Cookies (including similar technologies such as web storage) allow the operators of websites and apps to store and read information from your device. Learn more in our[cookie policy].cookiesto:\n* provide our sites and apps to you\n* authenticate users, apply security measures, and prevent spam and abuse, and\n* Measurement![] We count the number of visitors to our pages, the type of device they use (iOS or Android), the browser they use and the duration of their visit to our websites and apps. This data is collected in aggregate and is not tied to specific users.measureyour use of our sites and apps\nYour privacy choices\nIf you click '**Accept all**', we and[our partners], including 245 who are part of the IAB Transparency & Consent Framework, will also store and / or access information on a device (in other words, use cookies) and use precise geolocation data and other personal data such asTechnical identifiers![] Technical identifiers are system-generated strings of letters and numbers that can identify your device or you as a user. They include browser cookies, device IDs and your IP address. They may be derived from hashed and / or encrypted email addresses or the statistical matching of other identifiers.technical identifiersand browsing and search data, for analytics, personalised advertising and content, advertising and content measurement, and audience research and services development.\nIf you do not want us and our partners to use cookies and personal data for these additional purposes, click '**Reject all**'.\nIf you would like to customise your choices, click '**Manage privacy settings**'.\nYou can withdraw your consent or change your choices",
+      "image_url": "https://s.yimg.com/rz/p/yahoo_frontpage_en-US_s_f_p_bestfit_frontpage.png"
+    }
+  ],
+  "agent_action": {
+    "action": "BUY",
+    "belief": 0.75,
+    "reasoning": "Positive fake news detected. Increasing position."
+  }
+}

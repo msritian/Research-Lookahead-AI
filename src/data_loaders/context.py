@@ -3,7 +3,7 @@ import requests
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any
 from abc import ABC, abstractmethod
-from ..core.types import NewsItem
+from ..core.types import NewsItem, MarketSnapshot
 from .market import DataProvider
 
 from exa_py import Exa
@@ -146,7 +146,7 @@ class ContextDataProvider(DataProvider):
         self.query_template = query_template
         self.max_content = max_content
 
-    def get_market_snapshot(self, market_id: str, timestamp: datetime):
+    def get_market_snapshot(self, market_id: str, timestamp: datetime) -> Optional[MarketSnapshot]:
         raise NotImplementedError("This provider only handles News")
 
     def get_news(self, timestamp_start: datetime, timestamp_end: datetime, market_context: str = "General") -> List[NewsItem]:
@@ -182,12 +182,16 @@ class ContextDataProvider(DataProvider):
                     print(f"DEBUG: Filtered future article (after window): [{item_ts.date()}] {item.headline[:60]}")
                     continue
 
-            # 1. Hard Year Check: If it mentions 2025 in a context that isn't future-gazing
+            # 1. Hard Year Check: Only filter if it looks like a "hindsight" recap from the future
             if timestamp_end.year <= 2024:
-                if "2025" in content_lower and "inauguration" not in content_lower:
-                    # Likely a recap from the future
-                    print(f"DEBUG: Filtered out 2025 leak: {item.headline}")
-                    continue
+                hindsight_patterns = [
+                    "2024 election recap", "looking back at 2024", "historical results of 2024",
+                    "in 2024, biden would later", "2024 in review"
+                ]
+                if any(p in content_lower or p in headline_lower for p in hindsight_patterns):
+                    if "2025" in content_lower or "2026" in content_lower:
+                        print(f"DEBUG: Filtered out hindsight leak: {item.headline}")
+                        continue
 
             # 2. Results Check (Before Nov 2024)
             if timestamp_end.year == 2024 and timestamp_end.month < 11:
@@ -205,3 +209,6 @@ class ContextDataProvider(DataProvider):
             clean_news.append(item)
 
         return clean_news
+
+    def discover_markets(self, query: str, limit: int = 5, only_active: bool = False, sort_latest: bool = False) -> List[Dict[str, Any]]:
+        return []

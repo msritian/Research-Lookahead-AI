@@ -5,8 +5,9 @@ A high-fidelity research platform for evaluating Large Language Models (LLMs) an
 ## 🌟 Key Features
 
 *   **Multimodal Decision Making**: 
-    *   **Visual Signals**: Agents analyze programmatically generated historical price charts (via `matplotlib`) and web images (capped at 5 per step) via the OpenAI Vision API.
-    *   **Textual Context**: Processes rich news snippets from **Exa** and **Tavily** (Configurable content length).
+    *   **Visual Signals**: Agents analyze programmatically generated historical price charts (via `matplotlib`) and web images (capped at 3 per step for precision) via the OpenAI Vision API.
+    *   **Universal Format Support**: Automatic in-memory conversion of modern **AVIF** and **WebP** images to OpenAI-compatible formats.
+    *   **Textual Context**: Processes rich news snippets from **Exa** and **Tavily** with configurable character caps.
 *   **Time-Travel Simulation (Zero-Leakage Integrity)**:
     *   **External Cutoffs**: Implements strict `T-1s` news cutoff vs `T` market data, ensuring agents never see intraday "future" news.
     *   **Pre-training Bias Defense**: We cross-reference event dates against LLM knowledge cutoffs (e.g., GPT-4o's Oct 2023 cutoff) to ensure 100% "out-of-sample" testing.
@@ -16,7 +17,12 @@ A high-fidelity research platform for evaluating Large Language Models (LLMs) an
     *   **Polymarket & Kalshi**: Robust providers for decentralized and regulated prediction markets.
     *   **Automated Charting**: Generates OHLC/Price charts on-the-fly for any historical window.
 *   **Portfolio Management**: Tracks Cash, Positions, PnL, and enforces financial constraints (Starting $1000).
+*   **Hindsight Engine (Historical Search)**:
+    *   **Automated Discovery**: Search for closed/archived markets by keyword (e.g., "Trump", "NVIDIA").
+    *   **Resolved-Only Integrity**: Guaranteed "Resolved Only" filtering to ensure ground truth matches simulation outcomes.
+    *   **Backtesting Sorting**: Prioritize recent markets using the `--sort-latest` flag.
 *   **Recursive Memory**: Uses a "Journaling" mechanism where the agent passes its evolving worldview, comparing signals against the **Market Resolution Rules**.
+*   **Economic Rationality**: Hardcoded logical guardrails strictly prevent buying at price ceilings (e.g., >= $0.98) and ensure positive expected value trades.
 *   **Persistent Configuration**: Supports `.env` file for API key persistence.
 
 ## 📂 Project Structure
@@ -55,8 +61,8 @@ A high-fidelity research platform for evaluating Large Language Models (LLMs) an
 pip install -r requirements.txt
 ```
 
-### 3. Running a High-Precision Simulation (main.py)
-Use the following command to run a 14-day historical simulation with high-precision timing and a custom news window:
+### 3. Targeted Simulation (main.py)
+Run a specific market by ticker and start date:
 
 ```bash
 # Example: Sucre Mayoral Election
@@ -66,21 +72,33 @@ python3 main.py \
   --question "Who will win the Sucre Mayoral Election in Bolivia?" \
   --start-date "2026-02-08T15:00:00" \
   --days 14 \
-  --window 14 \
-  --max-content 3000
+  --window 14
 ```
 
-### 📊 Output & Results
-The system now uses a **Unified Run Directory** structure for better organization:
-`runs/[ticker]/[question_slug]_[timestamp]/`
-- `experiment.jsonl`: The machine-readable execution log (use for `evaluate.py`).
-- `raw_data/`: Daily JSON snapshots containing exactly what the agent read and thought.
-- `charts/`: Daily price charts (PNG) generated and analyzed by the agent.
+### 4. Hindsight Engine (Discovery mode)
+Discover and simulate multiple historical markets automatically:
 
-To evaluate a specific run:
+```bash
+# Example: Search for recent Trump-related resolved markets
+python3 main.py \
+  --hindsight-query "Trump" \
+  --hindsight-limit 3 \
+  --days 14 \
+  --sort-latest
+```
+
+### 📊 Evaluation & Audit
+The system tracks every multimodal signal and trade. To audit a run:
+
 ```bash
 python3 evaluate.py --log_file runs/[ticker]/[run_id]/experiment.jsonl
 ```
+
+**Metrics Provided:**
+*   **MAE / Brier Score**: Statistical calibration of the agent's belief vs. market price.
+*   **ROI / PnL**: Total financial return including bid/ask spreads.
+*   **Outcome Alignment**: Success/Failure verdict vs. the verified ground-truth winner.
+*   **Inconclusive Detection**: Flags runs with missing historical truth or stale data.
 
 ### 📈 Evaluation Metrics
 The evaluation script provides a deep-dive audit:

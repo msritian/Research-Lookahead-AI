@@ -13,7 +13,7 @@ class KalshiDataProvider(DataProvider):
         # Cache for history to avoid repeated calls
         self._history_cache = {} 
 
-    def get_market_snapshot(self, market_id: str, timestamp: datetime) -> MarketSnapshot:
+    def get_market_snapshot(self, market_id: str, timestamp: datetime) -> Optional[MarketSnapshot]:
         """
         In a real historical replay, asking the API for 'snapshot at time T' is hard because 
         /orderbook gives *current* state.
@@ -34,16 +34,8 @@ class KalshiDataProvider(DataProvider):
         relevant_trades = [t for t in history if t['ts'] <= timestamp.timestamp()]
         
         if not relevant_trades:
-            # No data yet? Return placeholder
-            return MarketSnapshot(
-                market_id=market_id,
-                timestamp=timestamp,
-                best_bid=0.01,
-                best_ask=0.99,
-                last_price=0.50,
-                volume=0,
-                open_interest=0
-            )
+            # No data yet? Signal missing data
+            return None
 
         last_trade = relevant_trades[-1]
         price = last_trade['price'] / 100.0 # Kalshi provides cents usually
@@ -63,6 +55,10 @@ class KalshiDataProvider(DataProvider):
     def get_news(self, timestamp_start: datetime, timestamp_end: datetime) -> List[NewsItem]:
         # Web Search implementation would go here
         # For now, return empty list or mock
+        return []
+
+    def discover_markets(self, query: str, limit: int = 5, only_active: bool = False, sort_latest: bool = False) -> List[Dict[str, Any]]:
+        """Placeholder for Kalshi historical discovery."""
         return []
 
     def _fetch_history(self, market_id: str):

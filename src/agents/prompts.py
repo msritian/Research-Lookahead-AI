@@ -26,6 +26,8 @@ Rules:
 - You cannot buy more than you can afford (Check Cash).
 - You cannot sell what you do not own (Check Positions).
 - If you have no strong conviction, HOLD.
+- **Economic Rationality**: Only BUY if Price < Belief (positive expected value).
+- **Ceiling Rule**: Never BUY if the price is >= 0.98; there is no remaining profit potential.
 - Always align your decision against the MARKET RESOLUTION RULES.
 """
 
