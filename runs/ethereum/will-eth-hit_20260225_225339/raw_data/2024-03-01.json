@@ -1,0 +1,42 @@
+{
+  "date": "2024-03-01",
+  "context_window": "2024-02-29 to 2024-02-29 (cutoff: 2024-02-29 23:59:59)",
+  "market_data": {
+    "Ethereum": {
+      "price": 0.5,
+      "bid": 0.49,
+      "ask": 0.51,
+      "volume": 0,
+      "chart_image": null
+    }
+  },
+  "market_rules": "This market will immediately resolve to \"Yes\" if any Binance 1 minute candle for ETH/USDT during the month specified in the title (from 00:00 AM ET on the first day to 11:59 PM ET on the last), has a final High price equal to or greater than the price specified in the title. Otherwise, this market will resolve to \"No.\"\n\nThe resolution source for this market is Binance, specifically the ETH/USDT High prices available at https://www.binance.com/en/trade/ETH_USDT, with the chart settings on \"1m\" for one-minute candles selected on the top bar.\n\nPlease note that the outcome of this market depends solely on the price data from the Binance ETH/USDT trading pair. Prices from other exchanges, different trading pairs, or spot markets will not be considered for the resolution of this market.",
+  "news": [
+    {
+      "date": "2024-02-29",
+      "source": "Exa",
+      "headline": "Can Ethereum Really Hit $10000 This Year? The Answer ...",
+      "content": "Can Ethereum Really Hit $10,000 This Year? The Answer Might Surprise You.\nOops, something went wrong\n[Skip to navigation] [Skip to main content] [Skip to right column] \n### [News] \n* [Today's news] \n* [US] \n* [Politics] \n* [World] \n* [Weather] \n* [Climate change] \n* [Health] \n* * [Wellness] \n* * [Mental health] \n* [Sexual health] \n* [Dermatology] \n* [Oral health] \n* [Hair loss] \n* [Foot health] \n* [Nutrition] \n* * [Healthy eating] \n* [Meal delivery] \n* [Weight loss] \n* [Vitamins and supplements] \n* [Fitness] \n* * [Equipment] \n* [Exercise] \n* [Women's health] \n* [Sleep] \n* [Healthy aging] \n* * [Hearing] \n* [Mobility] \n* [Science] \n* [Originals] \n* * [The 360] \n* [Newsletters] \n* [Games] \n### [Life] \n* [Health] \n* * [Wellness] \n* * [Nutrition] \n* [Fitness] \n* [Healthy aging] \n* [Sleep] \n* [Your body] \n* * [Children's health] \n* [Dermatology] \n* [Foot health] \n* [Hair loss] \n* [Oral health] \n* [Sexual health] \n* [Weight management] \n* [Women's health] \n* [Conditions] \n* * [Cardiovascular health] \n* [Digestive health] \n* [Endocrine system] \n* [Hearing] \n* [Mental health] \n* [Parenting] \n* * [Family health] \n* [So mini ways] \n* [Style and beauty] \n* * [It Figures] \n* [Unapologetically] \n* [Horoscopes] \n* [Shopping] \n* * [Presidents' Day sales] \n* * [Best Presidents' Day sales] \n* [Amazon Presidents' Day sale] \n* [Walmart Presidents' Day sale] \n* [Style] \n* * [Accessories] \n* [Clothing] \n* [Luggage] \n* [Shoes] \n* [Beauty] \n* * [Fragrance] \n* [Hair] \n* [Makeup] \n* [Nails] \n* [Skincare] \n* [Sunscreen] \n* [Health] \n* * [Dental] \n* [Fitness] \n* [Hair loss] \n* [Hearing] \n* [Mental health] \n* [Mobility] \n* [Nutrition] \n* [Personal care] \n* [Sexual health] \n* [Sleep] \n* [Women's health] \n* [Home and garden] \n* * [Bath] \n* [Bedding] \n* [Cleaning] \n* [Gardening] \n* [Kitchen] \n* [Outdoor] \n* [Pets] \n* [Tech] \n* * [Accessories] \n* [Audio] \n* [Auto] \n* [Computers] \n* [Phones] \n* [Smart home] \n* [Streaming] \n* [TVs] \n* [Gift ideas] \n* * [Best gifts for men] \n* [Best gift cards] \n* [Be",
+      "image_url": "https://s.yimg.com/ny/api/res/1.2/f5A07df5Ove1rfIVkVgUnw--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD03MTI7Y2Y9d2VicA--/https://media.zenfs.com/en/motleyfool.com/446c3c54ab6a2971353a6136734a2be0"
+    },
+    {
+      "date": "2024-02-29",
+      "source": "Exa",
+      "headline": "Can Ethereum Really Hit $10000 This Year? The Answer ...",
+      "content": "Can Ethereum Really Hit $10,000 This Year? The Answer Might Surprise You. | The Motley Fool\n[Accessibility Menu] \nSearch for a company\n[ \u25b2 S&amp;P 500 **+195%** | \u25b2 Stock Advisor **+904%** Join The Motley Fool ] \n[Accessibility]...[Help] \n[![The Motley Fool]![The Motley Fool]] \n[Top 10 Stocks to Buy Now \u203a] \nBars\n[\nArrow-Thin-Down\nS&amp;P 500\n6,909.51\n+0.7%\n+47.62\n] \n[\nArrow-Thin-Down\nDJI\n49,625.97\n+0.5%\n+230.81\n] \n[\nArrow-Thin-Down\nNASDAQ\n22,886.07\n+0.9%\n+203.34\n] \n[\nArrow-Thin-Down\nBitcoin\n$66,300.00\n-2.5%\n-$1,726.10\n] \n[\nArrow-Thin-Down\nCRWD\n$388.60\n-7.9%\n-$33.54\n] \n[\nArrow-Thin-Down\nRNG\n$39.50\n+34.4%\n+$10.11\n] \n[\nArrow-Thin-Down\nGRAL\n$50.15\n-50.6%\n-$51.38\n] \n[\nArrow-Thin-Down\nSTUB\n$9.36\n+9.9%\n+$0.84\n] \n[\nArrow-Thin-Down\nCRWV\n$89.25\n-8.1%\n-$7.89\n] \n[\nArrow-Thin-Down\nETSY\n$52.27\n+8.6%\n+$4.13\n] \n[\nArrow-Thin-Down\nAMZN\n$210.17\n+2.6%\n+$5.31\n] \n[\nArrow-Thin-Down\nGOOG\n$314.90\n+3.7%\n+$11.34\n] \n[\nArrow-Thin-Down\nMETA\n$655.66\n+1.7%\n+$10.88\n] \n[\nArrow-Thin-Down\nMSFT\n$397.24\n-0.3%\n-$1.22\n] \n[\nArrow-Thin-Down\nNVDA\n$189.67\n+0.9%\n+$1.77\n] \n[\nArrow-Thin-Down\nTSLA\n$411.82\n+0.0%\n+$0.11\n] \n[Most Active Stocks] [Daily Stock Gainers] [Daily Stock Losers] \narrow-leftarrow-right\n[Most Active Stocks] [Daily Stock Gainers] [Daily Stock Losers] \n# Can Ethereum Really Hit $10,000 This Year? The Answer Might Surprise You.\nBy [Dominic Basulto] \u2013 Feb 4, 2026 at 7:15AM EST\n## Key Points\n*\nSix months ago, Ethereum hit an all-time high of $4,954 per token.\n*\nKey blockchain metrics and technical trading indicators remain positive for Ethereum, even with a significant decline in price.\n*\nPrediction markets give Ethereum only a 17% chance of reclaiming the $5,000 price level this year.\n*\n[These 10 Stocks Could Mint the Next Wave of Millionaires \u203a] \n## [CRYPTO: ETH] \n### Ethereum\n![Ethereum Stock Quote] \nMarket Cap\n$229B\nToday&#x27;s Change\nangle-down\n(-3.34%) $65.95\nCurrent Price\n$1906.55\nPrice as of February 23, 2026 at 4:38 AM ET\nBased on data from prediction markets, Ethereum will have a tough c",
+      "image_url": "https://g.foolcdn.com/image/?url=https%3A%2F%2Fg.foolcdn.com%2Feditorial%2Fimages%2F854182%2Fwoman-using-ethereum.jpg&w=1200&op=resize"
+    },
+    {
+      "date": "2024-02-29",
+      "source": "Exa",
+      "headline": "Ethereum Traders Eye $4,000 Price Target as Markets Overheat",
+      "content": "Ethereum Traders Eye $4,000 Price Target as Markets Overheat\u00a0 | FXEmpire\n![Search Icon] \n/\n[] \nAdvertisement\nAdvertisement\n# Ethereum Traders Eye $4,000 Price Target as Markets Overheat\nBy:\n[Ibrahim Ajibade] \nUpdated: Feb 28, 2024, 23:32 GMT+00:00\n## Key Points:\n* Ethereum (ETH) price surged above $3,488 within the daily timeframe on Feb 28, its highest level in over 2-years\n* ETH Funding rates are currently trending 0.07%, which is more than 40% higher than the previous bull-cycle that saw ETH price hit an all-time high of $4,810\n* With ETH Funding rate trending at a 3-year peak, the markets are now approaching overheated territories and susceptible to dramatic price swings in the coming days\n![Ethereum ETH Price Prediction] \nEthereum ([ETH]) price surged above $3,488 within the daily timeframe on Feb 28, its highest level in over 2-years. But market data shows that the latest price upswing has saw ETH funding rates rise to historic peaks, putting the markets at risk of extreme volatility.\nIf the bears capitalize to force a pull-back, where will ETH price find steady support?\n## ETH Traders Leverage Tops 2021 Bull Cycle Peaks\nThe crypto market rally intensified on Feb 28, as Bitcoin and Ethereum prices both advanced to historic peaks.\nWhile BTC price hit $64,000, ETH price came within just $12 of breaking the $3,500 resistance. However, vital signals from the Ethereum derivative markets suggest the pioneer smart-contract network could be at risk of a pull back.\nCryptoQuant Funding Rates metric, presents a daily aggregate of fees paid between active traders of perpetual futures contracts for a specific cryptocurrency.\nThe chart below, shows that ETH funding rate recorded a noticeable spike on Feb 28, rising as high as 0.07% within the daily timeframe, the highest since April 2021.\nA closer look at the historical market trends shows this is about 40% higher than the 0.06% Funding rate peak recorded in the build-up to ETH\u2019s current all-time high price of $4,800 in Nov",
+      "image_url": "https://responsive.fxempire.com/v7/_fxempire_/2024/02/Ethereum-ETH-Price-Prediction-.png?func=cover&q=70&width=700"
+    }
+  ],
+  "agent_action": {
+    "action": "BUY",
+    "belief": 0.75,
+    "reasoning": "Positive fake news detected. Increasing position."
+  }
+}
