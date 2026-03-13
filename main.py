@@ -7,6 +7,8 @@ from src.core.environment import MarketEnvironment
 from src.agents.llm_agent import SequentialLLMAgent
 from src.agents.openai_provider import OpenAIProvider
 from src.agents.mock_provider import MockLLMProvider
+from src.agents.azure_provider import AzureOpenAIProvider
+from src.agents.qwen_provider import QwenProvider
 from src.data_loaders.kalshi import KalshiDataProvider
 from src.data_loaders.polymarket import PolymarketDataProvider
 from src.data_loaders.context import ContextDataProvider
@@ -56,7 +58,11 @@ def run_simulation(args, market_ticker, market_question, start_date, context_win
     # 2. Initialize Agent
     if args.mock:
         llm_provider = MockLLMProvider()
-    else:
+    elif args.llm == "azure":
+        llm_provider = AzureOpenAIProvider()
+    elif args.llm == "qwen":
+        llm_provider = QwenProvider()
+    else:  # openai (default)
         openai_key = os.environ.get("OPENAI_API_KEY")
         if not openai_key:
             print("Error: OPENAI_API_KEY not found. Set it or use --mock.")
@@ -99,6 +105,9 @@ def main():
     parser.add_argument('--window', type=int, default=None, help='Context window in days for news/data (defaults to same as --days)')
     parser.add_argument('--max-content', type=int, default=2000, help='Maximum characters per news article content')
     parser.add_argument('--mock', action='store_true', help='Use mock LLM instead of OpenAI')
+    parser.add_argument('--llm', type=str, default="openai",
+        choices=["openai", "azure", "qwen"],
+        help='LLM backend: openai (default), azure, or qwen (local Qwen2.5-Omni-3B)')
     parser.add_argument('--provider', type=str, default="polymarket", choices=["kalshi", "polymarket"], help='Data provider to use')
     
     # Hindsight Options
