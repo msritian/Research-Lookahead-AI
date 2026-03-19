@@ -203,14 +203,11 @@ def main():
         resolution_criteria = gamma_data.get("description", "").strip()
         print(f"    resolution criteria: {len(resolution_criteria)} chars" if resolution_criteria else "    – no resolution criteria")
 
+        # lastTradePrice is NOT used — for resolved markets it equals the settlement
+        # price (~1.0 or ~0.0) which directly leaks the ground truth to the model.
+        # We have no reliable way to get the price exactly at cutoff (7 days before
+        # resolution) without the full trades history, so we omit it entirely.
         price_at_cutoff = None
-        try:
-            ltp = gamma_data.get("lastTradePrice")
-            if ltp is not None:
-                price_at_cutoff = float(ltp)
-                print(f"    crowd price (lastTradePrice): {price_at_cutoff:.4f}")
-        except Exception:
-            pass
 
         record = {
             "market_id":           market_id,
