@@ -50,7 +50,7 @@ USER_PROMPT_TEMPLATE = """## Market Question
 - Market resolves NO for:  {answer_no}
 - Cutoff date (predict as of this date): {cutoff_date}
 - Price at cutoff (market-implied probability): {price_at_cutoff}
-
+{resolution_criteria_block}
 ## Price History (YES token price over time, 0-1 scale)
 {price_history}
 
@@ -339,12 +339,23 @@ class QwenProvider(LLMProvider):
         price_str = f"{price_at_cutoff:.4f}" if price_at_cutoff is not None else "N/A"
 
         # --- 3. Build prompt ---
+        resolution_criteria = market.get("resolution_criteria", "").strip()
+        if resolution_criteria:
+            # Truncate to avoid overly long prompts (criteria can be verbose)
+            criteria_snippet = resolution_criteria[:800]
+            if len(resolution_criteria) > 800:
+                criteria_snippet += "..."
+            resolution_criteria_block = f"\n## Resolution Criteria\n{criteria_snippet}\n"
+        else:
+            resolution_criteria_block = ""
+
         user_prompt = USER_PROMPT_TEMPLATE.format(
             question=question,
             answer_yes=market.get("answer_yes", "Yes"),
             answer_no=market.get("answer_no", "No"),
             cutoff_date=cutoff_date_s,
             price_at_cutoff=price_str,
+            resolution_criteria_block=resolution_criteria_block,
             price_history=price_history_str,
             news_context=news_text,
         )

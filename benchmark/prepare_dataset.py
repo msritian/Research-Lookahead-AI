@@ -12,6 +12,10 @@ Run once on Colab before running benchmark.py:
 import json
 import re
 import random
+import time
+import urllib.request
+import urllib.error
+import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -36,6 +40,33 @@ RANDOM_SEED         = 42
 # To guarantee zero pretraining leakage of outcomes, we only include markets
 # that resolved AFTER this date — the model cannot have seen their results.
 LEAKAGE_SAFE_CUTOFF = "2025-01-01"  # markets ending on or after this date are safe
+
+
+GAMMA_API = "https://gamma-api.polymarket.com/markets"
+
+
+def fetch_resolution_criteria(slug: str, retries: int = 3) -> str:
+    """
+    Fetches the full resolution criteria (description) for a market from
+    Polymarket's public Gamma API using its slug.
+    Returns an empty string if the fetch fails or no description is found.
+    """
+    url = f"{GAMMA_API}?slug={urllib.parse.quote(slug)}&limit=1"
+    for attempt in range(retries):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "benchmark-fetcher/1.0"})
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                data = json.loads(resp.read().decode())
+                if data and isinstance(data, list) and data[0].get("description"):
+                    return data[0]["description"].strip()
+                return ""
+        except Exception as e:
+            if attempt < retries - 1:
+                time.sleep(1.5 * (attempt + 1))
+            else:
+                print(f"    [warn] Could not fetch resolution criteria for slug '{slug}': {e}")
+                return ""
+    return ""
 
 
 def classify(question: str) -> str:
@@ -193,9 +224,11 @@ def main():
         print("  No matching trades found (will skip price history)")
 
     # --- Build final benchmark records ---
+    print("\nFetching resolution criteria from Polymarket Gamma API...")
     records = []
-    for row in selected:
+    for i, row in enumerate(selected):
         market_id = str(row["id"])
+        slug      = str(row.get("slug", ""))
         end_date_ts = int(row["end_date"].timestamp()) if hasattr(row["end_date"], "timestamp") else 0
         cutoff_ts   = end_date_ts - (7 * 86400)  # 7 days before resolution
 
@@ -204,20 +237,29 @@ def main():
         # Compute mid-price at cutoff for context
         price_at_cutoff = price_history[-1]["price"] if price_history else None
 
+        # Fetch full resolution criteria from Polymarket Gamma API (public, no auth needed)
+        print(f"  [{i+1}/{ len(selected)}] Fetching criteria for: {str(row['question'])[:60]}...")
+        resolution_criteria = fetch_resolution_criteria(slug) if slug else ""
+        if resolution_criteria:
+            print(f"    ✓ Got {len(resolution_criteria)} chars of resolution criteria")
+        else:
+            print(f"    – No resolution criteria found (will use question text only)")
+
         record = {
-            "market_id":      market_id,
-            "question":       str(row["question"]),
-            "slug":           str(row["slug"]),
-            "category":       str(row["category"]),
-            "answer_yes":     str(row["answer1"]),   # token1 = YES side
-            "answer_no":      str(row["answer2"]),   # token2 = NO side
-            "ground_truth":   int(row["ground_truth"]),  # 1=YES won, 0=NO won
-            "volume_usd":     float(row["volume"]) if row["volume"] is not None else 0.0,
-            "end_date":       row["end_date"].strftime("%Y-%m-%d") if hasattr(row["end_date"], "strftime") else str(row["end_date"]),
-            "cutoff_date":    datetime.fromtimestamp(cutoff_ts, tz=timezone.utc).strftime("%Y-%m-%d") if cutoff_ts > 0 else None,
-            "price_at_cutoff": price_at_cutoff,
-            "price_history":  price_history,
-            "event_title":    str(row.get("event_title", "")),
+            "market_id":           market_id,
+            "question":            str(row["question"]),
+            "slug":                slug,
+            "category":            str(row["category"]),
+            "answer_yes":          str(row["answer1"]),   # token1 = YES side
+            "answer_no":           str(row["answer2"]),   # token2 = NO side
+            "ground_truth":        int(row["ground_truth"]),  # 1=YES won, 0=NO won
+            "volume_usd":          float(row["volume"]) if row["volume"] is not None else 0.0,
+            "end_date":            row["end_date"].strftime("%Y-%m-%d") if hasattr(row["end_date"], "strftime") else str(row["end_date"]),
+            "cutoff_date":         datetime.fromtimestamp(cutoff_ts, tz=timezone.utc).strftime("%Y-%m-%d") if cutoff_ts > 0 else None,
+            "price_at_cutoff":     price_at_cutoff,
+            "price_history":       price_history,
+            "event_title":         str(row.get("event_title", "")),
+            "resolution_criteria": resolution_criteria,  # full resolution rules from Gamma API
         }
         records.append(record)
 

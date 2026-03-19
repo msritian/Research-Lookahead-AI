@@ -416,7 +416,19 @@ def main():
         t0 = time.time()
 
         try:
-            inference = runner.run_inference(market["question"])
+            # Build the question string, appending resolution criteria if available.
+            # Search-R1's INSTRUCTION already contains the Yes/No answer format request,
+            # so we only need to enrich the question with what resolves it.
+            question_text = market["question"]
+            criteria = market.get("resolution_criteria", "").strip()
+            if criteria:
+                criteria_snippet = criteria[:600] + ("..." if len(criteria) > 600 else "")
+                question_text = (
+                    f"{question_text}\n\n"
+                    f"Resolution criteria: {criteria_snippet}"
+                )
+
+            inference = runner.run_inference(question_text)
             elapsed   = round(time.time() - t0, 1)
 
             text_label = label_from_text(inference["final_answer_text"])
