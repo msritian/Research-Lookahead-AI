@@ -62,7 +62,8 @@ def exa_search(query: str, topk: int, api_key: str) -> List[DocumentResult]:
         for i, r in enumerate(response.results):
             title   = getattr(r, "title", "") or ""
             text    = getattr(r, "text", "")  or ""
-            score   = getattr(r, "score", 1.0 - i * 0.05)
+            score   = getattr(r, "score", None)
+            score   = float(score) if score is not None else 1.0 - i * 0.05
 
             # Search-R1 exact corpus format used in _passages2string():
             # first line = title, rest = body text
