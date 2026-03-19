@@ -109,33 +109,6 @@ def parse_outcome(outcome_prices_str: str) -> Optional[int]:
     return None
 
 
-def build_price_history(trades_df, market_id: str, cutoff_ts: int, max_points: int = 30):
-    """
-    Returns a list of {date, price} dicts from trades up to cutoff_ts,
-    sampled to at most max_points evenly spaced points.
-    """
-    import pandas as pd
-    subset = trades_df[
-        (trades_df["market_id"] == market_id) &
-        (trades_df["timestamp"] <= cutoff_ts)
-    ].sort_values("timestamp")
-
-    if subset.empty:
-        return []
-
-    subset = subset[["timestamp", "price"]].dropna()
-    if len(subset) > max_points:
-        idx = [int(i * (len(subset) - 1) / (max_points - 1)) for i in range(max_points)]
-        subset = subset.iloc[idx]
-
-    return [
-        {
-            "date": datetime.fromtimestamp(int(row["timestamp"]), tz=timezone.utc).strftime("%Y-%m-%d"),
-            "price": round(float(row["price"]), 4)
-        }
-        for _, row in subset.iterrows()
-    ]
-
 
 def main():
     import pandas as pd
@@ -212,114 +185,30 @@ def main():
     for row in selected:
         print(f"  [{row['category']:12s}] {row['question'][:80]}")
 
-    # --- Load trades for price history (streaming — file is ~32GB, never download fully) ---
-    print("\nStreaming trades.parquet to collect price history for selected markets...")
-    trades_ds = load_dataset(
-        "SII-WANGZJ/Polymarket_data",
-        data_files="trades.parquet",
-        split="train",
-        streaming=True,
-    )
-
-    # Peek at first record to discover actual column names
-    trades_iter  = iter(trades_ds)
-    first_record = next(trades_iter)
-    trade_cols   = list(first_record.keys())
-    print(f"  Trade schema: {trade_cols}")
-
-    # Detect which column holds the market/condition ID
-    id_col = next(
-        (c for c in trade_cols if c in ("market_id", "marketId", "condition_id", "conditionId")),
-        None,
-    )
-    # Detect timestamp and price columns
-    ts_col = next(
-        (c for c in trade_cols if c in ("timestamp", "transactedAt", "transacted_at", "created_at", "createdAt")),
-        None,
-    )
-    price_col = next(
-        (c for c in trade_cols if c in ("price", "pricePerShare", "price_per_share")),
-        None,
-    )
-    print(f"  Using: id_col={id_col!r}  ts_col={ts_col!r}  price_col={price_col!r}")
-
-    if id_col is None or ts_col is None or price_col is None:
-        print("  WARNING: Could not detect required columns — skipping price history.")
-        trades_df = pd.DataFrame(columns=["market_id", "timestamp", "price"])
-    else:
-        # Build target_ids from every possible ID field on the market rows
-        market_id_fields = ["id", "condition_id", "conditionId", "market_id", "conditionId"]
-        target_ids: set = set()
-        for row in selected:
-            for f in market_id_fields:
-                v = row.get(f)
-                if v is not None:
-                    target_ids.add(str(v))
-        print(f"  Searching for {len(target_ids)} target IDs: {list(target_ids)[:3]}...")
-
-        trades_rows = []
-        checked     = 0
-
-        # Include the first record we already peeked at
-        def _process(record):
-            if str(record.get(id_col, "")) in target_ids:
-                trades_rows.append({
-                    "market_id": str(record[id_col]),
-                    "timestamp": record[ts_col],
-                    "price":     record[price_col],
-                })
-
-        _process(first_record)
-
-        for record in trades_iter:
-            _process(record)
-            checked += 1
-            if checked % 1_000_000 == 0:
-                pct = checked / 1 * 1e-6  # just a counter
-                print(f"  Scanned {checked:,} rows, collected {len(trades_rows)} matches...")
-            # Stop once we have enough per-market data or hit a hard cap
-            if len(trades_rows) >= 30_000 or checked >= 5_000_000:
-                print(f"  Stopping early: {len(trades_rows)} rows collected after scanning {checked:,}")
-                break
-
-        if trades_rows:
-            trades_df = pd.DataFrame(trades_rows)
-            print(f"  Collected {len(trades_df):,} relevant trade rows")
-        else:
-            trades_df = pd.DataFrame(columns=["market_id", "timestamp", "price"])
-            print("  No matching trades found after scanning — price history will be empty.")
-            print(f"  Target IDs sample: {list(target_ids)[:5]}")
-            print("  (This is okay — the model will still get news context and crowd price via Gamma API)")
-
     # --- Build final benchmark records ---
-    print("\nFetching resolution criteria from Polymarket Gamma API...")
+    # trades.parquet is 32GB and sorted by time — post-2025 markets are at the very end.
+    # Skip it entirely. price_at_cutoff comes from Gamma API lastTradePrice instead,
+    # which is the final settlement price and is always present for resolved markets.
+    print("\nFetching Gamma API data (resolution criteria + crowd price) for each market...")
     records = []
     for i, row in enumerate(selected):
-        market_id = str(row["id"])
-        slug      = str(row.get("slug", ""))
+        market_id   = str(row["id"])
+        slug        = str(row.get("slug", ""))
         end_date_ts = int(row["end_date"].timestamp()) if hasattr(row["end_date"], "timestamp") else 0
         cutoff_ts   = end_date_ts - (7 * 86400)  # 7 days before resolution
 
-        price_history = build_price_history(trades_df, market_id, cutoff_ts)
-
-        # Compute mid-price at cutoff — from trades if available, else Gamma lastTradePrice
-        price_at_cutoff = price_history[-1]["price"] if price_history else gamma_last_price
-
-        # One Gamma API call per market — gets resolution criteria + last price fallback
-        print(f"  [{i+1}/{len(selected)}] Fetching Gamma data for: {str(row['question'])[:60]}...")
+        print(f"  [{i+1}/{len(selected)}] {str(row['question'])[:65]}...")
         gamma_data = fetch_gamma_market(slug) if slug else {}
-        resolution_criteria = gamma_data.get("description", "").strip()
-        if resolution_criteria:
-            print(f"    ✓ resolution criteria: {len(resolution_criteria)} chars")
-        else:
-            print(f"    – no resolution criteria")
 
-        # Use lastTradePrice from Gamma as fallback if trades gave no price history
-        gamma_last_price = None
+        resolution_criteria = gamma_data.get("description", "").strip()
+        print(f"    resolution criteria: {len(resolution_criteria)} chars" if resolution_criteria else "    – no resolution criteria")
+
+        price_at_cutoff = None
         try:
             ltp = gamma_data.get("lastTradePrice")
             if ltp is not None:
-                gamma_last_price = float(ltp)
+                price_at_cutoff = float(ltp)
+                print(f"    crowd price (lastTradePrice): {price_at_cutoff:.4f}")
         except Exception:
             pass
 
@@ -328,16 +217,16 @@ def main():
             "question":            str(row["question"]),
             "slug":                slug,
             "category":            str(row["category"]),
-            "answer_yes":          str(row["answer1"]),   # token1 = YES side
-            "answer_no":           str(row["answer2"]),   # token2 = NO side
-            "ground_truth":        int(row["ground_truth"]),  # 1=YES won, 0=NO won
+            "answer_yes":          str(row["answer1"]),
+            "answer_no":           str(row["answer2"]),
+            "ground_truth":        int(row["ground_truth"]),
             "volume_usd":          float(row["volume"]) if row["volume"] is not None else 0.0,
             "end_date":            row["end_date"].strftime("%Y-%m-%d") if hasattr(row["end_date"], "strftime") else str(row["end_date"]),
             "cutoff_date":         datetime.fromtimestamp(cutoff_ts, tz=timezone.utc).strftime("%Y-%m-%d") if cutoff_ts > 0 else None,
             "price_at_cutoff":     price_at_cutoff,
-            "price_history":       price_history,
+            "price_history":       [],   # trades.parquet skipped — too large, wrong sort order
             "event_title":         str(row.get("event_title", "")),
-            "resolution_criteria": resolution_criteria,  # full resolution rules from Gamma API
+            "resolution_criteria": resolution_criteria,
         }
         records.append(record)
 
