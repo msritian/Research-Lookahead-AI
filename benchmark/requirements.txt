@@ -1,0 +1,14 @@
+# Benchmark-specific dependencies (in addition to root requirements.txt)
+# Install with: pip install -r benchmark/requirements.txt
+
+transformers>=4.40.0
+accelerate>=0.27.0
+torch>=2.0.0
+bitsandbytes>=0.42.0      # optional: 4-bit quantization
+datasets>=2.18.0
+pandas>=2.0.0
+pyarrow>=14.0.0
+fastapi>=0.110.0
+uvicorn>=0.27.0
+requests>=2.31.0
+exa_py>=1.0.0
