@@ -49,11 +49,7 @@ USER_PROMPT_TEMPLATE = """## Market Question
 - Market resolves YES for: {answer_yes}
 - Market resolves NO for:  {answer_no}
 - Cutoff date (predict as of this date): {cutoff_date}
-- Price at cutoff (market-implied probability): {price_at_cutoff}
 {resolution_criteria_block}
-## Price History (YES token price over time, 0-1 scale)
-{price_history}
-
 ## Relevant News (published before {cutoff_date})
 {news_context}
 
@@ -327,18 +323,7 @@ class QwenProvider(LLMProvider):
             window_days=news_window_days,
         )
 
-        # --- 2. Format price history ---
-        ph = market.get("price_history", [])
-        if ph:
-            ph_lines = [f"  {p['date']}: {p['price']:.4f}" for p in ph[-15:]]  # last 15 points
-            price_history_str = "\n".join(ph_lines)
-        else:
-            price_history_str = "  No price history available."
-
-        price_at_cutoff = market.get("price_at_cutoff")
-        price_str = f"{price_at_cutoff:.4f}" if price_at_cutoff is not None else "N/A"
-
-        # --- 3. Build prompt ---
+        # --- 2. Build prompt ---
         resolution_criteria = market.get("resolution_criteria", "").strip()
         if resolution_criteria:
             # Truncate to avoid overly long prompts (criteria can be verbose)
@@ -354,9 +339,7 @@ class QwenProvider(LLMProvider):
             answer_yes=market.get("answer_yes", "Yes"),
             answer_no=market.get("answer_no", "No"),
             cutoff_date=cutoff_date_s,
-            price_at_cutoff=price_str,
             resolution_criteria_block=resolution_criteria_block,
-            price_history=price_history_str,
             news_context=news_text,
         )
 
