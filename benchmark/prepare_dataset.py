@@ -55,11 +55,10 @@ LEAKAGE_SAFE_CUTOFF = "2025-01-01"  # markets ending on or after this date are s
 GAMMA_API = "https://gamma-api.polymarket.com/markets"
 
 
-def fetch_resolution_criteria(slug: str, retries: int = 3) -> str:
+def fetch_gamma_market(slug: str, retries: int = 3) -> dict:
     """
-    Fetches the full resolution criteria (description) for a market from
-    Polymarket's public Gamma API using its slug.
-    Returns an empty string if the fetch fails or no description is found.
+    Fetches the full Gamma API market record for a slug.
+    Returns a dict with at minimum 'description' and 'outcomePrices' keys (empty if fetch fails).
     """
     url = f"{GAMMA_API}?slug={urllib.parse.quote(slug)}&limit=1"
     for attempt in range(retries):
@@ -67,16 +66,22 @@ def fetch_resolution_criteria(slug: str, retries: int = 3) -> str:
             req = urllib.request.Request(url, headers={"User-Agent": "benchmark-fetcher/1.0"})
             with urllib.request.urlopen(req, timeout=10) as resp:
                 data = json.loads(resp.read().decode())
-                if data and isinstance(data, list) and data[0].get("description"):
-                    return data[0]["description"].strip()
-                return ""
+                if data and isinstance(data, list):
+                    return data[0]
+                return {}
         except Exception as e:
             if attempt < retries - 1:
                 time.sleep(1.5 * (attempt + 1))
             else:
-                print(f"    [warn] Could not fetch resolution criteria for slug '{slug}': {e}")
-                return ""
-    return ""
+                print(f"    [warn] Gamma API fetch failed for '{slug}': {e}")
+                return {}
+    return {}
+
+
+def fetch_resolution_criteria(slug: str, retries: int = 3) -> str:
+    """Returns the resolution criteria description for a slug, or empty string."""
+    gamma = fetch_gamma_market(slug, retries=retries)
+    return gamma.get("description", "").strip()
 
 
 def classify(question: str) -> str:
@@ -207,56 +212,84 @@ def main():
     for row in selected:
         print(f"  [{row['category']:12s}] {row['question'][:80]}")
 
-    # --- Load trades for price history ---
-    print("\nLoading trades.parquet (non-streaming, filtered)...")
+    # --- Load trades for price history (streaming — file is ~32GB, never download fully) ---
+    print("\nStreaming trades.parquet to collect price history for selected markets...")
     trades_ds = load_dataset(
         "SII-WANGZJ/Polymarket_data",
         data_files="trades.parquet",
         split="train",
-        streaming=False,
+        streaming=True,
     )
-    trades_df_full = trades_ds.to_pandas()
-    print(f"  Loaded {len(trades_df_full):,} trade rows")
-    print(f"  Trade columns: {list(trades_df_full.columns)}")
 
-    # Detect the market-id column in trades (may be 'market_id', 'marketId', 'condition_id', etc.)
-    id_col_candidates = [c for c in trades_df_full.columns if "market" in c.lower() or "condition" in c.lower()]
-    print(f"  Candidate ID columns in trades: {id_col_candidates}")
+    # Peek at first record to discover actual column names
+    trades_iter  = iter(trades_ds)
+    first_record = next(trades_iter)
+    trade_cols   = list(first_record.keys())
+    print(f"  Trade schema: {trade_cols}")
 
-    # Build target id sets from markets using 'id' and also 'condition_id' / 'conditionId' if present
-    market_id_fields = ["id", "condition_id", "conditionId", "market_id"]
-    target_ids: set = set()
-    for row in selected:
-        for f in market_id_fields:
-            v = row.get(f)
-            if v is not None:
-                target_ids.add(str(v))
+    # Detect which column holds the market/condition ID
+    id_col = next(
+        (c for c in trade_cols if c in ("market_id", "marketId", "condition_id", "conditionId")),
+        None,
+    )
+    # Detect timestamp and price columns
+    ts_col = next(
+        (c for c in trade_cols if c in ("timestamp", "transactedAt", "transacted_at", "created_at", "createdAt")),
+        None,
+    )
+    price_col = next(
+        (c for c in trade_cols if c in ("price", "pricePerShare", "price_per_share")),
+        None,
+    )
+    print(f"  Using: id_col={id_col!r}  ts_col={ts_col!r}  price_col={price_col!r}")
 
-    trades_df = pd.DataFrame(columns=["market_id", "timestamp", "price"])
-    for col in id_col_candidates:
-        mask = trades_df_full[col].astype(str).isin(target_ids)
-        matched = trades_df_full[mask].copy()
-        if not matched.empty:
-            matched = matched.rename(columns={col: "market_id"})
-            # Normalise timestamp column name
-            for ts_col in ["timestamp", "transactedAt", "transacted_at", "created_at", "createdAt"]:
-                if ts_col in matched.columns and ts_col != "timestamp":
-                    matched = matched.rename(columns={ts_col: "timestamp"})
-                    break
-            # Normalise price column name
-            for p_col in ["price", "pricePerShare", "price_per_share"]:
-                if p_col in matched.columns and p_col != "price":
-                    matched = matched.rename(columns={p_col: "price"})
-                    break
-            trades_df = matched
-            print(f"  Matched {len(trades_df):,} trade rows via column '{col}'")
-            break
-
-    if trades_df.empty:
-        print("  No matching trades found — price history will be skipped.")
-        print(f"  (target_ids sample: {list(target_ids)[:5]})")
+    if id_col is None or ts_col is None or price_col is None:
+        print("  WARNING: Could not detect required columns — skipping price history.")
+        trades_df = pd.DataFrame(columns=["market_id", "timestamp", "price"])
     else:
-        print(f"  Collected {len(trades_df):,} relevant trade rows")
+        # Build target_ids from every possible ID field on the market rows
+        market_id_fields = ["id", "condition_id", "conditionId", "market_id", "conditionId"]
+        target_ids: set = set()
+        for row in selected:
+            for f in market_id_fields:
+                v = row.get(f)
+                if v is not None:
+                    target_ids.add(str(v))
+        print(f"  Searching for {len(target_ids)} target IDs: {list(target_ids)[:3]}...")
+
+        trades_rows = []
+        checked     = 0
+
+        # Include the first record we already peeked at
+        def _process(record):
+            if str(record.get(id_col, "")) in target_ids:
+                trades_rows.append({
+                    "market_id": str(record[id_col]),
+                    "timestamp": record[ts_col],
+                    "price":     record[price_col],
+                })
+
+        _process(first_record)
+
+        for record in trades_iter:
+            _process(record)
+            checked += 1
+            if checked % 1_000_000 == 0:
+                pct = checked / 1 * 1e-6  # just a counter
+                print(f"  Scanned {checked:,} rows, collected {len(trades_rows)} matches...")
+            # Stop once we have enough per-market data or hit a hard cap
+            if len(trades_rows) >= 30_000 or checked >= 5_000_000:
+                print(f"  Stopping early: {len(trades_rows)} rows collected after scanning {checked:,}")
+                break
+
+        if trades_rows:
+            trades_df = pd.DataFrame(trades_rows)
+            print(f"  Collected {len(trades_df):,} relevant trade rows")
+        else:
+            trades_df = pd.DataFrame(columns=["market_id", "timestamp", "price"])
+            print("  No matching trades found after scanning — price history will be empty.")
+            print(f"  Target IDs sample: {list(target_ids)[:5]}")
+            print("  (This is okay — the model will still get news context and crowd price via Gamma API)")
 
     # --- Build final benchmark records ---
     print("\nFetching resolution criteria from Polymarket Gamma API...")
@@ -269,16 +302,26 @@ def main():
 
         price_history = build_price_history(trades_df, market_id, cutoff_ts)
 
-        # Compute mid-price at cutoff for context
-        price_at_cutoff = price_history[-1]["price"] if price_history else None
+        # Compute mid-price at cutoff — from trades if available, else Gamma lastTradePrice
+        price_at_cutoff = price_history[-1]["price"] if price_history else gamma_last_price
 
-        # Fetch full resolution criteria from Polymarket Gamma API (public, no auth needed)
-        print(f"  [{i+1}/{ len(selected)}] Fetching criteria for: {str(row['question'])[:60]}...")
-        resolution_criteria = fetch_resolution_criteria(slug) if slug else ""
+        # One Gamma API call per market — gets resolution criteria + last price fallback
+        print(f"  [{i+1}/{len(selected)}] Fetching Gamma data for: {str(row['question'])[:60]}...")
+        gamma_data = fetch_gamma_market(slug) if slug else {}
+        resolution_criteria = gamma_data.get("description", "").strip()
         if resolution_criteria:
-            print(f"    ✓ Got {len(resolution_criteria)} chars of resolution criteria")
+            print(f"    ✓ resolution criteria: {len(resolution_criteria)} chars")
         else:
-            print(f"    – No resolution criteria found (will use question text only)")
+            print(f"    – no resolution criteria")
+
+        # Use lastTradePrice from Gamma as fallback if trades gave no price history
+        gamma_last_price = None
+        try:
+            ltp = gamma_data.get("lastTradePrice")
+            if ltp is not None:
+                gamma_last_price = float(ltp)
+        except Exception:
+            pass
 
         record = {
             "market_id":           market_id,
