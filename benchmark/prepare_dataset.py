@@ -35,6 +35,16 @@ CATEGORY_RULES = [
 TARGET_PER_CATEGORY = 2   # aim for 2 per bucket (6 buckets * 2 = 12, we take top 10)
 TOTAL_TARGET        = 10
 RANDOM_SEED         = 42
+MIN_VOLUME_USD      = 5_000   # raised from 100 — filters out micro/noise markets
+
+# Patterns that indicate noise markets not useful for forecasting benchmarks:
+# sports spreads/totals, intraday crypto up/down, minute-level events
+NOISE_PATTERNS = re.compile(
+    r"\b(spread|over/under|o/u|\+[0-9]|\-[0-9]|up or down|total kills|total points|"
+    r"run line|puck line|moneyline|\bml\b|1st half|2nd half|"
+    r"[0-9]+am et|[0-9]+pm et|[0-9]+am pst|[0-9]+pm pst)\b",
+    re.I,
+)
 
 # Qwen2.5 was released September 2024 with a training cutoff of ~early 2024.
 # To guarantee zero pretraining leakage of outcomes, we only include markets
@@ -151,9 +161,13 @@ def main():
     resolved = resolved[resolved["ground_truth"].notna()].copy()
     print(f"  Markets with clear winner: {len(resolved):,}")
 
-    # Exclude very low volume (< $100) — too illiquid to be meaningful
-    resolved = resolved[resolved["volume"] >= 100].copy()
-    print(f"  After volume filter (>=100 USD): {len(resolved):,}")
+    # Exclude low volume — filters noise/micro markets
+    resolved = resolved[resolved["volume"] >= MIN_VOLUME_USD].copy()
+    print(f"  After volume filter (>=${MIN_VOLUME_USD:,} USD): {len(resolved):,}")
+
+    # Exclude noise markets: sports spreads/totals, intraday crypto, etc.
+    resolved = resolved[~resolved["question"].apply(lambda q: bool(NOISE_PATTERNS.search(str(q))))].copy()
+    print(f"  After noise filter: {len(resolved):,}")
 
     # --- Leakage guard: only markets that resolved AFTER model training cutoff ---
     # Qwen2.5 training data cutoff is ~early 2024 (released Sep 2024).
@@ -194,34 +208,55 @@ def main():
         print(f"  [{row['category']:12s}] {row['question'][:80]}")
 
     # --- Load trades for price history ---
-    print("\nLoading trades.parquet (streaming first shard)...")
+    print("\nLoading trades.parquet (non-streaming, filtered)...")
     trades_ds = load_dataset(
         "SII-WANGZJ/Polymarket_data",
         data_files="trades.parquet",
         split="train",
-        streaming=True,
+        streaming=False,
     )
+    trades_df_full = trades_ds.to_pandas()
+    print(f"  Loaded {len(trades_df_full):,} trade rows")
+    print(f"  Trade columns: {list(trades_df_full.columns)}")
 
-    # Collect only trades for our 10 market IDs to avoid RAM blowup
-    target_ids = set(str(row["id"]) for row in selected)
-    trades_rows = []
-    checked = 0
-    for record in trades_ds:
-        if str(record.get("market_id", "")) in target_ids:
-            trades_rows.append(record)
-        checked += 1
-        if checked % 500_000 == 0:
-            print(f"  Scanned {checked:,} trade rows, collected {len(trades_rows)}...")
-        # Stop early once we have enough data per market
-        if len(trades_rows) >= 50_000:
+    # Detect the market-id column in trades (may be 'market_id', 'marketId', 'condition_id', etc.)
+    id_col_candidates = [c for c in trades_df_full.columns if "market" in c.lower() or "condition" in c.lower()]
+    print(f"  Candidate ID columns in trades: {id_col_candidates}")
+
+    # Build target id sets from markets using 'id' and also 'condition_id' / 'conditionId' if present
+    market_id_fields = ["id", "condition_id", "conditionId", "market_id"]
+    target_ids: set = set()
+    for row in selected:
+        for f in market_id_fields:
+            v = row.get(f)
+            if v is not None:
+                target_ids.add(str(v))
+
+    trades_df = pd.DataFrame(columns=["market_id", "timestamp", "price"])
+    for col in id_col_candidates:
+        mask = trades_df_full[col].astype(str).isin(target_ids)
+        matched = trades_df_full[mask].copy()
+        if not matched.empty:
+            matched = matched.rename(columns={col: "market_id"})
+            # Normalise timestamp column name
+            for ts_col in ["timestamp", "transactedAt", "transacted_at", "created_at", "createdAt"]:
+                if ts_col in matched.columns and ts_col != "timestamp":
+                    matched = matched.rename(columns={ts_col: "timestamp"})
+                    break
+            # Normalise price column name
+            for p_col in ["price", "pricePerShare", "price_per_share"]:
+                if p_col in matched.columns and p_col != "price":
+                    matched = matched.rename(columns={p_col: "price"})
+                    break
+            trades_df = matched
+            print(f"  Matched {len(trades_df):,} trade rows via column '{col}'")
             break
 
-    if trades_rows:
-        trades_df = pd.DataFrame(trades_rows)
-        print(f"  Collected {len(trades_df):,} relevant trade rows")
+    if trades_df.empty:
+        print("  No matching trades found — price history will be skipped.")
+        print(f"  (target_ids sample: {list(target_ids)[:5]})")
     else:
-        trades_df = pd.DataFrame(columns=["market_id", "timestamp", "price"])
-        print("  No matching trades found (will skip price history)")
+        print(f"  Collected {len(trades_df):,} relevant trade rows")
 
     # --- Build final benchmark records ---
     print("\nFetching resolution criteria from Polymarket Gamma API...")
