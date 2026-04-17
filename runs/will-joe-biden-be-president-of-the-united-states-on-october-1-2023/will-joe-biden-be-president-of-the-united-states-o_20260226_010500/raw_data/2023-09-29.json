@@ -1,0 +1,70 @@
+{
+  "date": "2023-09-29",
+  "context_window": "2023-09-27 to 2023-09-28 (cutoff: 2023-09-28 23:59:59)",
+  "market_data": {
+    "will-joe-biden-be-president-of-the-united-states-on-october-1-2023": {
+      "price": 0.5,
+      "bid": 0.49,
+      "ask": 0.51,
+      "volume": 0,
+      "chart_image": null
+    }
+  },
+  "market_rules": "This is a market on if Joe Biden will be President of the United States on June 1, 2023, 12 PM ET.\n\nThis market will resolve to \u201cYes\u201c if, at the time of this market's resolution, Joe Biden is the President of the United States as officially substantiated by US government sources. Otherwise, this market will resolve to \"No.\"\n\nThe primary resolution source for this market is https://www.whitehouse.gov/; however, other official government sources may be used.",
+  "news": [
+    {
+      "date": "2023-09-27",
+      "source": "Exa",
+      "headline": "Joe Biden: President announces reelection bid, saying battle for nation's soul isn't complete",
+      "content": "Joe Biden: President announces reelection bid, saying battle for nation\u2019s soul isn\u2019t complete | CNN Politics\n[] \n### CNN values your feedback\n1. How relevant is this ad to you?\n2. Did you encounter any technical issues?\nVideo player was slow to load contentVideo content never loadedAd froze or did not finish loadingVideo content did not start after adAudio on ad was too loudOther issues\nAd never loadedAd prevented/slowed the page from loadingContent moved around while ad loadedAd was repetitive ",
+      "image_url": "https://media.cnn.com/api/v1/images/stellar/prod/230424095528-01-joe-biden-lead.jpg?c=16x9&q=w_800,c_fill"
+    },
+    {
+      "date": "2023-09-28",
+      "source": "Exa",
+      "headline": "Biden Issues a Blistering Attack on Trump",
+      "content": "Biden Issues a Blistering Attack on Trump - The New York Times\n[Skip to content] [Skip to site index] \n[Politics] \n[] \n[Today\u2019s Paper] \n[Politics] |Biden Issues a Blistering Attack on Trump\n[] [] \nhttps://www.nytimes.com/2023/09/28/us/politics/biden-mccain-library.html\n* Share full article\n* * * [612] \nAdvertisement\n[SKIP ADVERTISEMENT] \nYou have a preview view of this article while we are checking your access. When we have confirmed access, the full article content will load.\nSupported by\n[SKIP",
+      "image_url": "https://static01.nyt.com/images/2023/09/28/multimedia/28dc-biden-01b-pwft/28dc-biden-01b-pwft-facebookJumbo.jpg"
+    },
+    {
+      "date": "2023-09-27",
+      "source": "Exa",
+      "headline": "Joe Biden 2024 presidential campaign",
+      "content": "Joe Biden 2024 presidential campaign - Wikipedia[Jump to content] \n[![]![Wikipedia]![The Free Encyclopedia]] \n[Search] \nSearch\n# Joe Biden 2024 presidential campaign\n6 languages\n* [\u0627\u0644\u0639\u0631\u0628\u064a\u0629] \n* [\u010ce\u0161tina] \n* [Espa\u00f1ol] \n* [Portugu\u00eas] \n* [\u0420\u0443\u0441\u0441\u043a\u0438\u0439] \n* [Simple English] \n[Edit links] \nFrom Wikipedia, the free encyclopedia\nAmerican political campaign\n|Biden for President 2024|\n[![]] |\nCampaign|[2024 U.S. presidential election] \n[2024 Democratic primaries] |\nCandidate|\n* **[Joe Biden] **\n* 46th[President",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Biden-Harris_2024_logo.svg/960px-Biden-Harris_2024_logo.svg.png"
+    },
+    {
+      "date": "2023-09-27",
+      "source": "Exa",
+      "headline": "Joe Biden presidential campaign, 2024",
+      "content": "Joe Biden presidential campaign, 2024 - Ballotpedia\n&times;#### Sign up to receive Ballotpedia's daily newsletter\nEmail \\*\nFirst Name\nPlease complete the Captcha above\n&times;#### Ballotpedia on Facebook\n[ Share this page] \n[ Follow Ballotpedia] \n&times;#### Ballotpedia on Twitter\n[ Share this page] \n[ Follow Ballotpedia] \n[Subscribe] [**] [**] [**] [**] [**] [Donate] \n[] \n[Subscribe] [Subscribe] [Donate] \n[![Ballotpedia Logo]] \n[![Ballotpedia Logo]] \n[**] [**] [**] [**] [**] \n[] \nElection law c",
+      "image_url": null
+    },
+    {
+      "date": "2023-09-27",
+      "source": "Exa",
+      "headline": "Biden officially kicks off 2024 reelection bid",
+      "content": "Biden officially kicks off 2024 reelection bid | PBS News\nClose Popup\n## Share your email and we\u2019ll share the latest trusted news\nEnter your email addressSubscribeNo Thanks\nForm error message goes here.\nThank you. Please check your inbox to confirm.\nClose\n[PBS News] \n[![Embedded YouTube video]] \nBy \u2014[Zeke Miller, Associated Press] [Zeke Miller, Associated Press] \n[\nLeave your feedback\n] \nShare\n* Copy URL\nhttps://www.pbs.org/newshour/politics/biden-officially-kicks-off-2024-reelection-bid\n* [Emai",
+      "image_url": "https://d3i6fh83elv35t.cloudfront.net/static/2023/04/2023-04-25T101803Z_1005182305_RC2ML0AS7R2S_RTRMADP_3_USA-ELECTION-BIDEN-1024x576.jpg"
+    },
+    {
+      "date": "2023-09-27",
+      "source": "Exa",
+      "headline": "Biden isn't paying much attention to the 2024 GOP debate. He's already zeroing in on Trump",
+      "content": "Biden isn&#x27;t paying much attention to the 2024 GOP debate. He&#x27;s already zeroing in on Trump | AP News \nMenu\n[![AP Logo]] \nMenu\n* [World] \n* [U.S.] \n* [Election 2024] \n* [Politics] \n* [Sports] \n* [Entertainment] \n* [Business] \n* [Science] \n* [Fact Check] \n* [Oddities] \n* [Be Well] \n* [Newsletters] \n* [Video] \n* [Photography] \n* [Climate] \n* [Health] \n* [Personal Finance] \n* [AP Investigations] \n* [Tech] \n* [Lifestyle] \n* [Religion] \n* [AP Buyline Personal Finance] \n* [AP Buyline Shopping",
+      "image_url": "https://dims.apnews.com/dims4/default/2f496a9/2147483647/strip/true/crop/5058x2845+0+263/resize/1440x810!/quality/90/?url=https%3A%2F%2Fassets.apnews.com%2Fd3%2Fa9%2Fbbd923e424fa2c5f9559f94818cd%2Fb5b93232009242af8ac903f8c5bc84ad"
+    },
+    {
+      "date": "2023-09-28",
+      "source": "Exa",
+      "headline": "Biden previews 2024 message by warning that Trump\u2019s movement is a threat to American democracy",
+      "content": "# Biden previews 2024 message by warning that Trump\u2019s movement is a threat to American democracy\n\nBy [Kevin Liptak], [MJ Lee], [Kayla Tausche] and [Arlette Saenz], CNN\n\n7 min read\n\nUpdated\n10:36 PM EDT, Thu September 28, 2023\n\nLink Copied!\n\nVideo Ad Feedback\n\nSee how Biden responds to climate protesters interrupting his speech\n\n01:02\n\\- Source:\n[CNN] \n\nPolitics of the Day16 videos\n\nVideo Ad Feedback\n\nSee how Biden responds to climate protesters interrupting his speech\n\n01:02\n\nNow playing\n\n\\- Sou",
+      "image_url": null
+    }
+  ],
+  "agent_action": {
+    "action": "BUY",
+    "belief": 0.95,
+    "reasoning": "Recent news indicates that Joe Biden is actively engaged in his role as President, including announcing his reelection bid and addressing political issues. There are no reports suggesting any change in his status as President. Therefore, the probability that he will remain President on October 1, 2023, is very high."
+  }
+}

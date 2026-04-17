@@ -1,0 +1,35 @@
+{
+  "date": "2025-10-07",
+  "context_window": "2025-09-23 to 2025-10-06 (cutoff: 2025-10-06 23:59:59)",
+  "market_data": {
+    "will-joe-biden-make-an-appearance-by-october-15": {
+      "price": 0.9995,
+      "bid": 0.9945,
+      "ask": 0.99,
+      "volume": 51841,
+      "chart_image": "/Users/Patron/Documents/research/Research-Lookahead-AI/runs/will-joe-biden-make-an-appearance-by-october-15/will-joe-biden-make-an-appearance-by-october-15_20260226_021243/charts/40185195716143421487958334591808329831328742041642098404263782900065958201962_1759813200.png"
+    }
+  },
+  "market_rules": "This market will resolve to \"Yes\" if Joe Biden makes a new public or digital appearance between September 30, 7:00 PM ET and October 15, 2025, 11:59 PM ET. Otherwise, this market will resolve to \"No\".\n\nA public appearance includes, for example, an appearance at a press conference. A digital appearance must be verified as new, authentic footage (not AI-generated). For instance, if Biden appears in a new prerecorded speech, this market will resolve to \"Yes\".\n\nBiden must be awake for this market to resolve to \"Yes\".\n\nThe resolution source for this market will be a consensus of credible reporting.",
+  "news": [
+    {
+      "date": "2025-09-23",
+      "source": "Exa",
+      "headline": "The disappearing Bidens: A quiet end to a presidency - Axios",
+      "content": "Photo illustration: Sarah Grillo. Photos: Anna Moneymaker, Anthony Devlin/Getty Images Joe Biden's visit to the storm-ravaged states in the South this week was an event that's become increasingly rare for the president: a public appearance. Why it matters: Biden hasn't scheduled public events in 43 of the 75 days since he dropped his re-election bid, a reflection of the 81-year-old president's unpopularity and age limitations as he approaches his last three months in office. Vice President Kamala Harris \u2014 who has praised Biden but doesn't routinely talk about him in her speeches \u2014 has had just one campaign event with him along with a few official events in Washington. First Lady Jill Biden also has largely withdrawn from campaign events, and Harris' team hasn't pushed for her to do them, people familiar with the matter told Axios. By the numbers: Since dropping out on July 21, Joe Biden has scheduled just two public appearances before 11am, none before 10am, and five after 5pm, according to an Axios analysis of Biden's schedules. With one exception, all publicly scheduled calls and meetings with other world leaders have been between 11am and 5pm \u2014 a sign of how Biden's staff continues to narrow his work hours as they manage his stamina. Even before the disastrous nighttime debate in June that led to the end of his re-election campaign, Biden's aides had privately noted that he's reliably on message between 10am and 4pm \u2014 and more likely to get fatigued and have trouble speaking outside those hours. Before he withdrew from the race, Biden tried to reassure Democratic governors that he would get more sleep to avoid a repeat debate performance, and would stop scheduling events after 8pm. Some Biden aides and close allies believe he's been aging more rapidly in recent months under the stress of the job and the legal troubles of his son, Hunter (the White House disputes this). Biden has sat for just two interviews since July 21, despite lingering questions about his ment",
+      "image_url": "https://images.axios.com/OkbWy-w1Yo4slHYNetloXOElSn4=/0x0:1920x1080/1366x768/2024/10/02/1727897045203.jpg"
+    },
+    {
+      "date": "2025-10-06",
+      "source": "Exa",
+      "headline": "Donald Trump says White House UFC event will be held June 14",
+      "content": "Donald Trump says White House UFC event will be held June 14 - ESPN\nSkip to main content\nSkip to navigation\n&lt;\n&gt;\n[Menu] ## [ESPN] \n* [] \n* [] \n*\n* [scores] \n[] \n[Trump: White House UFC event will be June 14] \n141dBrett Okamoto\n[] \n[MMA divisional rankings: Heavyweight top 10 is light on changes or impact] \n13hBrett Okamoto\n[] \n[MMA pound-for-pound rankings: Mixed reaction to Volkanovski's rematch win] \n21d\n[] \n[MVP, book these three fights on the Rousey vs. Carano card] \n3dESPN staff\n[] \n[Rousey vs. Carano is a sign of the times -- with a silver lining] \n7dJeffrey Wagenheim\n[] \n[Irish lightweight Hughes to headline PFL Belfast] \n2d\n[] \n[McGregor teases return, open to fight 'no name'] \n3dBrett Okamoto\n[] \n[Strickland stops Hernandez, wants Chimaev next] \n3dBrett Okamoto\n[] \n[Brady-Buckley to headline April 25 Fight Night] \n3dBrett Okamoto\n[] \n[Van sets first title defense vs. Taira at UFC 327] \n3dBrett Okamoto\n[] \n[Strickland criticizes UFC fighter pay as 'predatory'] \n4d\n[] \n[Steveson rolls to 3-0 in MMA, but no UFC call-out] \n5dBrett Okamoto\n[] \n[All 11 UFC champions ranked by what they have to prove in 2026] \n6dBrett Okamoto\n[] \n[UFC at the White House explained] \n12dBrett Okamoto\n[] \n[Hour 4: CM Punk & AJ Lee] \n[Chicago Bears] \n11h\n[] \n[MMA divisional rankings: Heavyweight top 10 is light on changes or impact] \n13hBrett Okamoto\n[] \n[Irish lightweight Hughes to headline PFL Belfast] \n2d\n[] \n[McGregor teases return, open to fight 'no name'] \n3dBrett Okamoto\n[] \n[Strickland stops Hernandez, wants Chimaev next] \n3dBrett Okamoto\n[] \n[Brady-Buckley to headline April 25 Fight Night] \n3dBrett Okamoto\n[] \n[Van sets first title defense vs. Taira at UFC 327] \n3dBrett Okamoto\n[] \n[MVP, book these three fights on the Rousey vs. Carano card] \n3dESPN staff\n[] \n[Strickland criticizes UFC fighter pay as 'predatory'] \n4d\n[] \n[Steveson rolls to 3-0 in MMA, but no UFC call-out] \n5dBrett Okamoto\n[] \n[All 11 UFC champions ranked by what they have to prove in 2026] \n6dBrett Okamo",
+      "image_url": "https://a.espncdn.com/combiner/i?img=%2Fphoto%2F2025%2F0815%2Fr1532047_1296x729_16%2D9.jpg"
+    }
+  ],
+  "agent_action": {
+    "action": "SELL",
+    "belief": 0.95,
+    "reasoning": "The market price is at 1.00, indicating certainty of a 'Yes' resolution. However, recent news suggests Biden has been making very few public appearances, and there is no new information confirming an upcoming appearance. Given the lack of evidence for a new appearance and the high market price, it is rational to sell my position to lock in profits."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "date": "2024-07-24",
+  "context_window": "2024-07-15 to 2024-07-23 (cutoff: 2024-07-23 23:59:59)",
+  "market_data": {
+    "biden-covid-free-by-next-friday": {
+      "price": 0.9995,
+      "bid": 0.9945,
+      "ask": 0.99,
+      "volume": 43473,
+      "chart_image": "/Users/Patron/Documents/research/Research-Lookahead-AI/runs/biden-covid-free-by-next-friday/will-joe-biden-be-covid-free-by-next-friday-july-2_20260225_232912/charts/31353776179423623407820557990644889627242192445056948353795380433220518361477_1721797200.png"
+    }
+  },
+  "market_rules": "This market will resolve to \"Yes\" if Joe Biden or one of his representatives publicly confirms that Biden is free of an active COVID-19 infection by 11:59 PM ET on July 26, 2024. Otherwise this market will resolve to \u201cNo\u201d. \n\nStatements that Biden has tested negative for COVID-19 or that he has fully recovered from his COVID-19 infection will qualify for a \u201cYes\u201d resolution. \n\nThe resolution source will be public statements from Biden or one of his representatives, however a consensus of credible reporting may also be used.\n\n",
+  "news": [
+    {
+      "date": "2024-07-22",
+      "source": "Exa",
+      "headline": "Biden Continues to Recover From COVID-19, Stays Out of Public View After Ending His 2024 Campaign",
+      "content": "REHOBOTH BEACH, Del. (AP) \u2014 President Joe Biden\u2019s \u201csymptoms have almost resolved completely\u201d from COVID-19, according to his physician, as the president on Monday remained out of public view for the fifth straight day. Biden called into the Wilmington, Delaware, headquarters of his former campaign during a visit by Vice President Kamala Harris, whose bid for the White House has been endorsed by Biden. The president sought to pep up the staff, urging them to give \u201cevery bit\u201d of their \u201cheart and soul\" to Harris. Biden also vowed to be \u201cout on the road\u201d campaigning for his vice president. \u201cIf I didn\u2019t have Covid, I\u2019d be standing there with you,\" said Biden, whose voice sounded a touch gravelly. The president was last seen in public late Wednesday after arriving at a U.S. air base in Dover, Delaware, after testing positive for COVID-19 while campaigning in Las Vegas earlier in the day. He then motorcaded to his vacation home in Rehoboth Beach, Delaware. The White House says Biden plans to return to the White House on Tuesday afternoon. Biden\u2019s physician, Dr. Kevin O\u2019Connor, said that the president had completed his 10th dose of the COVID-fighting medication Paxlovid on Monday morning and continued to perform all of his presidential duties. \u201cHis symptoms have almost resolved completely. His pulse, blood pressure, respiratory rate and temperature remain absolutely normal,\u201d O\u2019Connor wrote. \u201cHis oxygen saturation continues to be excellent on room air. His lungs remain clear.\u201d The White House said Biden received separate briefings on Monday from homeland security adviser Liz Sherwood-Randall and national security adviser Jake Sullivan. Both briefings were conducted virtually. Biden\u2019s public schedule for the week has remained clear as he recovers from the virus, but he said in his letter on Sunday that he planned to deliver an address to the nation this week to discuss his decision to end his candidacy. Biden also plans to meet at the White House later this week with the fami",
+      "image_url": "https://www.usnews.com/dims4/USNEWS/912dfdb/2147483647/thumbnail/970x647/quality/85/?url=https%3A%2F%2Fwww.usnews.com%2Fcmsmedia%2F5c%2F871c5a64794ed90d421d543a1c2f14%2Fa51383e392de45c09028156ae96b5bc8Election_2024_Democrats_09556.jpg"
+    },
+    {
+      "date": "2024-07-22",
+      "source": "Exa",
+      "headline": "Biden\u2019s Covid Symptoms Have Nearly Resolved: White House Doctor",
+      "content": "[US Election 2024:] \n[Results] \n[Republican Trifecta] \n[Red Wave] \nBackForward\n[Politics] \n# Biden\u2019s Covid Symptoms Have Nearly Resolved, White House Doctor Says\nFacebookXLinkedInEmailLink\nGift\nHarris Says Biden's Legacy Is 'Unmatched'\nFacebookXLinkedInEmailLink\nGiftGift this article\n[How easy or hard was it to use Bloomberg.com today?\\\nShare feedbackNew Window] \n[Have a confidential tip for our reporters? Get in Touch] [Before it\u2019s here, it\u2019s on the Bloomberg\u00a0Terminal\\\n\\\nBloomberg Terminal LEARN MORE] \nFacebookXLinkedInEmailLink\nGift\nBy [Josh Wingrove] \nJuly 22, 2024 at 3:01 PM EDT\nBookmarkSave\nPresident Joe Biden\u2019s symptoms from Covid-19 have \u201calmost resolved completely,\u201d his doctor said, as the president remains isolated for the fifth day at his Delaware beach home.\nBiden\u2019s pulse, blood pressure, respiratory rate and temperature \u201cremain absolutely normal\u201d and he \u201ccontinues to perform all of his presidential duties,\u201d physician Kevin O\u2019Connor wrote in a letter released Monday by the White House.\n[Have a confidential tip for our reporters? Get in Touch] [Before it\u2019s here, it\u2019s on the Bloomberg\u00a0Terminal\\\n\\\nBloomberg Terminal LEARN MORE]",
+      "image_url": "https://assets.bwbx.io/images/users/iqjWHBFdfxIU/iOQgskhU3bVc/v1/1200x800.jpg"
+    },
+    {
+      "date": "2024-07-22",
+      "source": "Exa",
+      "headline": "Biden's COVID symptoms 'almost completely resolved,' his doctor says.",
+      "content": "[HEALTH] \n\nPolitics\n\nAdd Topic\n\n# Biden's COVID symptoms 'almost completely resolved,' his doctor says.\n\n[![Portrait of Adrianna Rodriguez] Adrianna Rodriguez] \n\nUSA TODAY\n\nPresident Joe Biden\u2019s symptoms have \u201calmost resolved completely\u201d after testing positive for COVID-19 last Wednesday, [according to a White House press release].\n\nAfter completing his tenth dose of the antiviral Paxlovid, his pulse, blood pressure, respiratory rate and temperature remain normal, his doctor, Kevin O'Connor, said in the release. His oxygen saturation is \u201cexcellent\u201d in room air and his lungs remain clear. All those are markers of recovery and general health.\n\nO'Connor said Biden continues to perform his presidential duties, though he has canceled all public appearances since Wednesday and the White House has not yet said when he will resume them.\n\nThe update comes a day after the president made the unprecedented announcement that he would drop his bid for reelection, amid doubts about his age and health. On Sunday, he announced that he would leave the race and would instead support his vice president, Kamala Harris, as his successor.\n\n[Older adults are typically at relatively high risk] for developing severe disease from COVID-19, but health experts had predicted that his stellar vaccination record and prompt treatment with Paxlovid would most likely lead to a full recovery from the immediate infection.\u00a0Older people are also at higher risk for longer-term symptoms, known as long COVID, which can include fatigue, brain fog and breathlessness.\n\nThis is the president's second bout with COVID-19. He was [infected almost exactly two years ago], in July 2022.\n\nBiden has been in generally good health, according to O'Connor's medical reports, with his most recent annual [physical in February].\n\nBut his [performance in the first televised debate] against Republican nominee and former president Donald Trump was disastrous late last month, with Biden sounding frail and sometimes struggling to f",
+      "image_url": "https://www.usatoday.com/gcdn/authoring/authoring-images/2024/07/18/USAT/74454891007-afp-2161874025.jpg?crop=6683,3759,x0,y118&width=3200&height=1800&format=pjpg&auto=webp"
+    },
+    {
+      "date": "2024-07-23",
+      "source": "Exa",
+      "headline": "Biden gets all clear from his doctor after COVID-19: 'symptoms have resolved'",
+      "content": "President Joe Biden\u2019s \"symptoms have resolved,\" after testing positive for COVID-19 last Wednesday, according to his doctor, Kevin O'Connor. \u201cOver the course of his infection, he never manifested a fever, and his vital signs remained normal, to include pulse oximetry,\u201d Dr. O\u2019Connor said in a press release. \u201cHis lungs remained clear.\u201d Biden, who took atleast 10 doses of antiviral Paxlovid, will continue to be monitored for any recurrence of illness, his physician said. The president is slated to address the nation from the Oval Office on Wednesday about what comes after ending his bid for a second term on Sunday. \u201cTomorrow evening at 8 PM ET, I will address the nation from the Oval Office on what lies ahead and how I will finish the job for the American people,\u201d Biden said in a message posted Tuesday on X, formerly Twitter. Biden pulled out of the presidential race on Sunday following\u00a0 weeks of pressure \u00a0from Democrats who feared he would lose to former President Donald Trump, the Republican nominee. Biden endorsed Vice President Kamala Harris, who announced that she would seek the Democratic nomination for president. Swapna Venugopal Ramaswamy is a White House correspondent for USA TODAY. \u00a0 You can follow her on X, formerly Twitter, @SwapnaVenugopal",
+      "image_url": "https://www.usatoday.com/gcdn/authoring/authoring-images/2024/07/23/USAT/74511910007-usatsi-23795342.jpg?crop=749,422,x0,y63&width=749&height=422&format=pjpg&auto=webp"
+    }
+  ],
+  "agent_action": {
+    "action": "BUY",
+    "belief": 0.99,
+    "reasoning": "Recent updates indicate that President Biden's COVID-19 symptoms have resolved, and his vital signs are normal. His doctor has confirmed that he is symptom-free, which aligns with the market resolution rules for a 'Yes' outcome. Given the high probability of a 'Yes' resolution and the current market price, buying is a favorable action."
+  }
+}

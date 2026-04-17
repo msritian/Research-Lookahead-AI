@@ -1,0 +1,35 @@
+import json
+import os
+from datetime import datetime
+from typing import Any, Dict
+
+class ExperimentLogger:
+    def __init__(self, run_dir: str = "logs", metadata: Dict[str, Any] = None):
+        os.makedirs(run_dir, exist_ok=True)
+        self.log_file = os.path.join(run_dir, "experiment.jsonl")
+        print(f"Logging experiment to: {self.log_file}")
+        
+        # Log initial metadata (e.g. resolution rules, expected winner)
+        if metadata:
+            self.log("metadata", metadata)
+
+    def log(self, event_type: str, data: Dict[str, Any]):
+        """
+        Logs a single event to the JSONL file.
+        """
+        def serialize(obj):
+            if isinstance(obj, datetime):
+                return obj.isoformat()
+            if isinstance(obj, dict):
+                return {k: serialize(v) for k, v in obj.items()}
+            if isinstance(obj, list):
+                return [serialize(i) for i in obj]
+            return obj
+
+        entry = {
+            "timestamp": datetime.now().isoformat(),
+            "event_type": event_type,
+            "data": serialize(data)
+        }
+        with open(self.log_file, "a") as f:
+            f.write(json.dumps(entry) + "\n")

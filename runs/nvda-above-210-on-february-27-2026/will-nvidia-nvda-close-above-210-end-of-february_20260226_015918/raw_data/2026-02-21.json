@@ -1,0 +1,35 @@
+{
+  "date": "2026-02-21",
+  "context_window": "2026-02-07 to 2026-02-20 (cutoff: 2026-02-20 23:59:59)",
+  "market_data": {
+    "nvda-above-210-on-february-27-2026": {
+      "price": 0.5,
+      "bid": 0.49,
+      "ask": 0.51,
+      "volume": 0,
+      "chart_image": null
+    }
+  },
+  "market_rules": "This market will resolve to \"Yes\" if the official closing price for NVIDIA (NVDA) on the final day of trading of the specified week (normally Friday) is higher than the listed price. Otherwise, this market will resolve to \"No.\"\n\nIf the final session is shortened (for example, due to a market-holiday schedule), the official closing price published for that shortened session will still be used for resolution.\n\nIf no official closing price is published for that session (for example, due to a trading halt into the close, system issue, delisting, or other disruption), the market will use the last valid on-exchange trade price of the regular session as the effective closing price.\n\nThe resolution source for this market is Yahoo Finance, specifically the NVIDIA (NVDA) \"Close\" prices available at https://finance.yahoo.com/quote/NVDA/history, published under \"Historical Prices.\"\n\nIn the event of a stock split, reverse stock split, or similar corporate action affecting the listed company during the listed time frame, this market will resolve based on split-adjusted prices as displayed on Yahoo Finance.",
+  "news": [
+    {
+      "date": "2026-02-17",
+      "source": "Exa",
+      "headline": "Nvidia Earnings on Feb. 25: What History Tells Us About Nvidia Stock's Post-Earnings-Release Moves | The Motley Fool",
+      "content": "Nvidia Earnings on Feb. 25: What History Tells Us About Nvidia Stock&#x27;s Post-Earnings-Release Moves | The Motley Fool\n[Accessibility Menu] \nSearch for a company\n[Accessibility]...[Help] \n[![The Motley Fool]![The Motley Fool]] \n[Top 10 Stocks to Buy Now \u203a] \nBars\n[\nArrow-Thin-Down\nS&amp;P 500\n6,946.13\n+0.8%\n+56.06\n] \n[\nArrow-Thin-Down\nDJI\n49,482.15\n+0.6%\n+307.65\n] \n[\nArrow-Thin-Down\nNASDAQ\n23,152.08\n+1.3%\n+288.40\n] \n[\nArrow-Thin-Down\nBitcoin\n$68,192.00\n+4.2%\n+$2,731.03\n] \n[\nArrow-Thin-Down\nNFLX\n$82.72\n+6.0%\n+$4.68\n] \n[\nArrow-Thin-Down\nCRCL\n$82.95\n+35.2%\n+$21.58\n] \n[\nArrow-Thin-Down\nMELI\n$1,767.36\n-8.1%\n-$155.20\n] \n[\nArrow-Thin-Down\nCCC\n$6.33\n+25.1%\n+$1.27\n] \n[\nArrow-Thin-Down\nFSLR\n$210.12\n-13.6%\n-$33.09\n] \n[\nArrow-Thin-Down\nBMNR\n$21.50\n+10.6%\n+$2.06\n] \n[\nArrow-Thin-Down\nAMZN\n$210.64\n+1.0%\n+$2.08\n] \n[\nArrow-Thin-Down\nGOOG\n$313.01\n+0.7%\n+$2.09\n] \n[\nArrow-Thin-Down\nMETA\n$653.69\n+2.3%\n+$14.39\n] \n[\nArrow-Thin-Down\nMSFT\n$400.65\n+3.0%\n+$11.65\n] \n[\nArrow-Thin-Down\nNVDA\n$195.62\n+1.4%\n+$2.77\n] \n[\nArrow-Thin-Down\nTSLA\n$417.24\n+1.9%\n+$7.86\n] \n[Most Active Stocks] [Daily Stock Gainers] [Daily Stock Losers] \narrow-leftarrow-right\n[Most Active Stocks] [Daily Stock Gainers] [Daily Stock Losers] \n# Nvidia Earnings on Feb. 25: What History Tells Us About Nvidia Stock&#x27;s Post-Earnings-Release Moves\nBy [Beth McKenna] \u2013 Feb 17, 2026 at 6:00AM EST\n## Key Points\n*\nGiven Nvidia&#x27;s great record of beating Wall Street\u2019s earnings estimates, the probability seems very high that it will do so on Feb. 25.\n*\nAn \u201cearnings beat,\u201d however, doesn\u2019t necessarily mean the stock will rise following the release.\n*\n## [NASDAQ: NVDA] \n### Nvidia\n![Nvidia Stock Quote] \nMarket Cap\n$4.7T\nToday&#x27;s Change\nangle-down\n(1.44%) $2.77\nCurrent Price\n$195.62\nPrice as of February 25, 2026 at 3:58 PM ET\nThe artificial intelligence (AI) tech leader has beaten the analyst consensus earnings estimate in 20 of the past 22 quarters.\n**Nvidia** ([NVDA] +1.44%) is scheduled to report its results for the fourth qua",
+      "image_url": "https://g.foolcdn.com/image/?url=https%3A%2F%2Fg.foolcdn.com%2Feditorial%2Fimages%2F856658%2Fnvda-stock-earnings-when-q4-earnings-date-best-ai-stocks-to-buy.jpg&w=1200&op=resize"
+    },
+    {
+      "date": "2026-02-07",
+      "source": "Exa",
+      "headline": "Nvidia: Ready To Outperform In 2026 -- Again (Rating ...",
+      "content": "Nvidia: Ready To Outperform In 2026 \u2014Again (Rating Upgrade) (NASDAQ:NVDA) | Seeking Alpha\n[Skip to content] \n[Home page Seeking Alpha - Power to Investors] \nSearch field\n[Home page Seeking Alpha - Power to Investors] \n[About Premium] \nCreate free account\n[Search for Symbols, analysts, keywords] \nLog in\n[] \n# Nvidia: Ready To Outperform In 2026 -- Again (Rating Upgrade)\nJan. 06, 2026 9:00 AM ET[NVIDIA Corporation (NVDA) Stock],[NVDA:CA Stock],[ZNVD:CA Stock] [AMD],[GOOGL],[AMZN],[MSFT],[ORCL],[META],[AAPL],[INTC],[ZMSF:CA],[ZMET:CA],[ZINT:CA],[ZGOO:CA],[ZAMD:CA],[ZAAP:CA],[ORAC:CA],[AAPL:CA],[MSFT:CA],[AMD:CA],[META:CA],[AMZN:CA],[INTC:CA],[GOOG],[GOOG:CA] \n![] \n[Millennial Dividends] \n8.91KFollowers\nFollow\n* 5\nShare\n* Save\n* Play(14min)\n* [\nComments\n(20)\n] \n## Summary\n* Nvidia Corporation remains a core outperformer, driven by dominant AI GPU market share and accelerating AI-related CapEx from major tech firms.\n* NVDA's valuation at 41.6x P/E appears justified by projected 56\u201362% EPS growth through FY27, supporting a potential further expansion.\n* AI CapEx is expected to grow 50\u201360% YoY in 2026, with 39% allocated to GPUs, directly fueling NVDA's top-line and margin strength.\n* I see $190/share as an attractive entry, targeting $210/share by mid-2026 and $340/share in 2027 on sustained AI spending momentum.\n![Nvidia Corporation building in Taipei, Taiwan.] \nBING-JHEN HONG/iStock Editorial via Getty Images\nNvidia Corporation's ([NVDA]) stock is up 13.4x in the last five years while its revenue grew 6.8x over the same timeframe. If were to zoom out just a bit more, to 10 years, Nvidia's revenue\nThis article was written by\n![] \n[Millennial Dividends] \n8.91KFollowers\nFollow\nI\u2019m a Financial Analyst at a Fortune 500 company, investing with a long runway\u201430 years to retirement and plenty of compounding ahead. I write about building a thoughtful portfolio that balances strong growth potential with solid fundamentals. My focus is on high-quality businesses, mostly in the U.S",
+      "image_url": "https://static.seekingalpha.com/cdn/s3/uploads/getty_images/1412721464/image_1412721464.jpg?io=getty-c-w1536"
+    }
+  ],
+  "agent_action": {
+    "action": "HOLD",
+    "belief": 0.55,
+    "reasoning": "Recent news suggests Nvidia is expected to outperform due to strong AI market positioning and potential earnings beat. However, the current price of $195.62 is below the $210 target, and while there is optimism, the stock needs a significant increase to surpass $210 by the end of February. Given the current market price of the contract at $0.50, my belief probability of 0.55 suggests a slight positive expectation, but not enough to justify further buying or selling. Holding is the best course of action."
+  }
+}

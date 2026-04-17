@@ -1,0 +1,42 @@
+{
+  "date": "2024-08-21",
+  "context_window": "2024-08-19 to 2024-08-20 (cutoff: 2024-08-20 23:59:59)",
+  "market_data": {
+    "will-another-man-be-the-2024-democratic-vp-nominee": {
+      "price": 0.5,
+      "bid": 0.49,
+      "ask": 0.51,
+      "volume": 0,
+      "chart_image": null
+    }
+  },
+  "market_rules": "This market will resolve to \u201cYes\u201d if Josh Shapiro is the 2024 nominee of the Democratic Party for U.S. vice president. Otherwise, this market will resolve to \u201cNo\u201d.\n\nThe resolution source for this market will be a consensus of official Democrat sources, including https://democrats.org/.\n\nAny replacement of the nominee before election day will not change the resolution of the market.",
+  "news": [
+    {
+      "date": "2024-08-19",
+      "source": "Exa",
+      "headline": "Democrats on road to choosing nominee - Minot Daily News",
+      "content": "Democrats on road to choosing nominee | News, Sports, Jobs - Minot Daily News\n[newslink] \n[DAILY NEWS] \n[&times;] \n* [News] \n* [Local News] \n* [Local Elections] \n* [Daily Records] \n* [Public Agenda] \n* [Births] \n* [District Court] \n* [Municipal Court] \n* [Marriage License] \n* [Divorces] \n* [North Dakota News] \n* [National News] \n* [International News] \n* [Honor Rolls] \n* [Sports] \n* [Local Sports] \n* [North Dakota Sports] \n* [National Sports] \n* [Opinion] \n* [Editorials] \n* [Letters to the Editor] \n* [Local Columnists] \n* [National Columnists] \n* [Life] \n* [Business] \n* [Arts &#038; Entertainment] \n* [Community] \n* [Outdoors] \n* [Military] \n* [Home and Garden] \n* [Religion] \n* [Obituaries] \n* [Classifieds] \n* [Jobs] \n* [Garage Sales] \n* [Contact Information] \n* [Contact Us] \n* [Subscribe] \n* [Advertise] \n* [Statement of Values] \n* [Terms of Service] \n* [Submit News] \n* [Public Notices] \n* [Place Notice] \n* [Browse Notices on NDNA] \n[![homepage logo]] \n* [![]] [\n* SUBSCRIBE] \n[![homepage logo]] \n*\nFebruary 25, 2026\n* |\n* [Today's Paper] \n* |\n* [Submit News] \n* |\n* [Subscribe Today] \n* [Today's Paper] \n* |\n* [Subscribe Today] \n# Democrats on road to choosing nominee\n##\nFeb 25, 2026\n#### Daniel McCarthy\n#####\n######\n[![]] \n[![]] \n* [![]] \n* [![]] \n![] \nDaniel McCarthy\nGavin Newsom won&#8217;t be the Democrats&#8217; 2028 presidential nominee unless he wins a significant share of the African American vote.\nSo how&#8217;s he courting it?\nPromoting his new memoir to a largely black audience in Atlanta, the California governor decided to forge a connection by boasting about his poor SAT scores and difficulty reading.\n&#8220;I&#8217;m like you,&#8221; he said.\n&#8220;You know, I&#8217;m a 960 SAT guy&#8221; and &#8220;you&#8217;ve never seen me read a speech. Because I cannot read a speech.&#8221;\nNewsom suffers from dyslexia, but he obviously wasn&#8217;t assuming he was addressing a room full of voters with the same debility.\nHe just looked around and concluded this audie",
+      "image_url": "https://ogden_images.s3.amazonaws.com/www.minotdailynews.com/images/2026/02/10144711/McCarthy-Daniel-BW.jpg"
+    },
+    {
+      "date": "2024-08-19",
+      "source": "Exa",
+      "headline": "2024 Democratic Party vice presidential candidate selection",
+      "content": "2024 Democratic Party vice presidential candidate selection - Wikipedia\n[Jump to content] \n[![]![Wikipedia]![The Free Encyclopedia]] \n[Search] \nSearch\n# 2024 Democratic Party vice presidential candidate selection\n1 language\n* [Espa\u00f1ol] \n[Edit links] \nFrom Wikipedia, the free encyclopedia\n2024 Democratic vice presidential nomination[![]] \n|\n&#8592;&#160;[2020] \n**August&#160;6,&#160;2024&#160;(2024-08-06)**\n*2028*&#160;&#8594;\n|\n&#160;|[![]] ||\n|Nominee|**[Tim Walz] **|||\nHome&#160;state|[Minnesota] ||\n|\n**Previous Vice Presidential nominee**\n[Kamala Harris] \n|**Vice Presidential nominee**\n[Tim Walz] \n|\n|\n|[![]] [2024 U.S. presidential election] |\n* [Timeline] \n* [Debates] \n* [Parties] \n* Polling\n* [national] \n* [statewide] \n* News media endorsements\n* [primary] \n* [general] \n* [Fundraising] \n* [Ballot access] \n* [Interference] \n* [Chinese] \n* [Russian] \n* [Iranian] \n* [Presidential electors] \n* [Vote count] \n* [Presidential transition] \n* [Political violence] |\n[Republican Party] |\n* [Primaries] \n* [Candidates] \n* [Debates and forums] \n* Polling\n* [national] \n* [statewide] \n* [Results] \n* [Endorsements] \n* [Nominee] \n* [VP candidate selection] \n* [Convention] |\n[Democratic Party] |\n* [Primaries] \n* [Candidates] \n* [Debates and forums] \n* [Polling] \n* [Results] \n* [Endorsements] \n* [Nominee] \n* VP candidate selection\n* [Convention] |\n[Third parties] |\n* [Third-party and independent candidates] \n* [polling] \n* [Libertarian Party] \n* [primaries] \n* [convention] \n* [nominee] \n* [Green Party] \n* [primaries] \n* [convention] \n* [nominee] \n* [Party for Socialism and Liberation] \n* [nominee] \n* [Constitution Party] \n* [convention] \n* [nominee] \n* [American Solidarity Party] \n* [nominee] \n* [Independents] \n* [Kennedy] \n* [West] |\n[Related races] |\n* [Senate] \n* [House] \n* [Governors] |\n&#8592;&#160;[2020] \n[2024] \n[2028] &#160;&#8594;\n|\n* [v] \n* [t] \n* [e] \n|\n|[![]] |\nThis article is part of\na series about\n[Kamala Harris] |\n|\nPersonal\n* [Early life] \n* Bibliography\n* *[Smart ",
+      "image_url": "https://en.wikipedia.org/static/images/icons/enwiki-25.svg"
+    },
+    {
+      "date": "2024-08-20",
+      "source": "Exa",
+      "headline": "Democrats approve platform that mentions Biden's 'second term' despite his making way for Harris",
+      "content": "## Accessibility links\n\n- [Skip to main content] \n- [Skip to main Navigation] \n- [Skip to Search] \n\n##### Follow Us\n\n[Languages] \n\nSearch\n\n[![site logo]![site logo]] \n\nSearch\n\n![site logo]![site logo] \n\n[Previous] [Next] \n\nBreaking News\n\n[2024 US Election] \n\n# Democrats approve platform that mentions Biden's 'second term' despite his making way for Harris\n\nAugust 19, 2024 9:20 PM\n\n- By [Associated Press] \n\n* * *\n\n![President Joe Biden does a stage check before the start of the first day of the Democratic National Convention at the United Center in Chicago, Illinois, on Aug. 19, 2024.] \n\nPresident Joe Biden does a stage check before the start of the first day of the Democratic National Convention at the United Center in Chicago, Illinois, on Aug. 19, 2024.\n\nDemocrats approve platform that mentions Biden's 'second term' despite his making way for Harris\n\nPrint\n\nCHICAGO \u2014\n\nDelegates at the Democratic National Convention voted Monday night to approve their 2024 party platform, which lays out familiar priorities for the party but wasn't updated to reflect that President Joe Biden is no longer running for reelection.\n\nThe largely ceremonial vote at Chicago's convention signaled the party coalescing around a singular vision for the next four years \u2014 though a somewhat outdated one, as Vice President Kamala Harris has only outlined a few of her own specific policy positions since she took over the Democratic presidential ticket last month. The platform makes repeated reference to Biden's \"second term\" despite the president's decision a month ago to no longer seek one.\n\nThe Democratic National Committee said the more than 90-page document \"makes a strong statement about the historic work that President Biden and Vice President Harris have accomplished hand-in-hand and offers a vision for a progressive agenda that we can build on as a nation and as a Party as we head into the next four years.\"\n\nRegina Romero, the mayor of Tucson, Arizona, and co-chair of the convention platfor",
+      "image_url": "https://gdb.voanews.com/E56B6392-805D-46A2-B45D-B2E068018230.jpg"
+    }
+  ],
+  "agent_action": {
+    "action": "BUY",
+    "belief": 0.75,
+    "reasoning": "Positive fake news detected. Increasing position."
+  }
+}
