@@ -40,12 +40,17 @@ cp "$REPO/training/patches/main_ppo.py" \
    "$SEARCHR1/verl/trainer/main_ppo.py"
 
 # 4. Patched hf_weight_loader.py (streams weights to GPU one at a time — fixes OOM)
-echo "[4/5] Patching hf_weight_loader.py..."
+echo "[4/6] Patching hf_weight_loader.py..."
 cp "$REPO/training/patches/hf_weight_loader.py" \
    "$SEARCHR1/verl/third_party/vllm/vllm_v_0_6_3/hf_weight_loader.py"
 
-# 5. Dataset + retriever server
-echo "[5/5] Copying dataset and retriever..."
+# 5. Patched fsdp_vllm.py (offload_to_cpu=True — keeps FSDP state dict on CPU)
+echo "[5/6] Patching fsdp_vllm.py..."
+cp "$REPO/training/patches/fsdp_vllm.py" \
+   "$SEARCHR1/verl/workers/sharding_manager/fsdp_vllm.py"
+
+# 6. Dataset + retriever server
+echo "[6/6] Copying dataset and retriever..."
 mkdir -p "$SEARCHR1/data"
 # Processed parquet files (run process_polymarket.py first)
 if [ -d "$REPO/training/data/polymarket_search" ]; then

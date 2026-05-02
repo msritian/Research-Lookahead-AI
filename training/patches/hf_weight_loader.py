@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Patched for single-GPU (A100 40GB) training:
-# Original code called vllm_model.cuda() AFTER loading CPU tensors from FSDP,
-# which creates a full second copy of model weights on GPU causing OOM.
-# Fix: stream each weight to GPU individually before passing to load_weights,
-# then skip the final .cuda() call since model is already on GPU.
+# Patched for single-GPU (A100 40GB) training.
+# Works in tandem with the fsdp_vllm.py patch (offload_to_cpu=True) which ensures
+# the FSDP state dict contains CPU tensors when it arrives here.
+# We stream each weight to GPU one at a time (never holding the full model
+# twice in GPU memory), then call .cuda() only for any remaining small buffers.
 
 from typing import Dict
 
