@@ -11,9 +11,20 @@
 
 set -e
 
-export CUDA_VISIBLE_DEVICES=0          # single A100
-export DATA_DIR=data/polymarket_search  # output of process_polymarket.py
+# Resolve SEARCHR1 root (directory this script is run from, or override via env)
+export SEARCHR1=${SEARCHR1:-$(pwd)}
+
+export CUDA_VISIBLE_DEVICES=0
+export DATA_DIR="$SEARCHR1/data/polymarket_search"   # absolute path — avoids cwd issues
 export BASE_MODEL=Qwen/Qwen2.5-3B      # base model (not instruct, not checkpoint)
+
+# Guard — fail early with a clear message if parquet files are missing
+if [ ! -f "$DATA_DIR/train.parquet" ] || [ ! -f "$DATA_DIR/test.parquet" ]; then
+    echo "ERROR: Parquet files not found at $DATA_DIR"
+    echo "Run first: python training/data/process_polymarket.py --csv polymarket_dataset.csv --out <out_dir>"
+    echo "Then copy: cp -r <out_dir> $DATA_DIR"
+    exit 1
+fi
 export EXPERIMENT_NAME=polymarket-search-r1-grpo-qwen2.5-3b-em
 
 # Coverage reward: acceptable range of web sources per question
