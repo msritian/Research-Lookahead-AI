@@ -30,17 +30,22 @@ if ! grep -q "polymarket_em" "$INIT"; then
 fi
 
 # 2. Patched generation.py (passes end_date to retriever)
-echo "[2/4] Patching generation.py..."
+echo "[2/5] Patching generation.py..."
 cp "$REPO/training/patches/generation.py" \
    "$SEARCHR1/search_r1/llm_agent/generation.py"
 
 # 3. Patched main_ppo.py (registers polymarket reward + extra_info)
-echo "[3/4] Patching main_ppo.py..."
+echo "[3/5] Patching main_ppo.py..."
 cp "$REPO/training/patches/main_ppo.py" \
    "$SEARCHR1/verl/trainer/main_ppo.py"
 
-# 4. Dataset + retriever server
-echo "[4/4] Copying dataset and retriever..."
+# 4. Patched hf_weight_loader.py (streams weights to GPU one at a time — fixes OOM)
+echo "[4/5] Patching hf_weight_loader.py..."
+cp "$REPO/training/patches/hf_weight_loader.py" \
+   "$SEARCHR1/verl/third_party/vllm/vllm_v_0_6_3/hf_weight_loader.py"
+
+# 5. Dataset + retriever server
+echo "[5/5] Copying dataset and retriever..."
 mkdir -p "$SEARCHR1/data"
 # Processed parquet files (run process_polymarket.py first)
 if [ -d "$REPO/training/data/polymarket_search" ]; then
