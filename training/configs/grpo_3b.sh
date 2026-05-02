@@ -38,6 +38,11 @@ export WANDB_PROJECT="Polymarket-SearchR1"
 export VLLM_ATTENTION_BACKEND=XFORMERS        # required for Qwen2.5 + vLLM
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True  # reduce fragmentation OOM
 
+# Ray memory settings — prevent Ray from killing workers on single-machine runs
+# Default threshold (0.95) is too aggressive when FSDP offloads to CPU RAM
+export RAY_memory_usage_threshold=0.99        # tolerate up to 99% RAM usage
+export RAY_memory_monitor_refresh_ms=0        # disable Ray OOM killer entirely
+
 # Single A100 40GB memory budget:
 #   vLLM kv-cache (gpu_memory_utilization=0.35) ≈ 14GB
 #   model weights in bfloat16                   ≈  6GB

@@ -86,28 +86,27 @@ class FSDPVLLMShardingManager(BaseShardingManager):
         params = self.module.state_dict()
         log_gpu_memory_usage('After state_dict() in sharding manager memory', logger=logger)
 
-        # ── PATCH: force state-dict tensors to CPU before sync ───────────────
+        # ── PATCH: force state-dict GPU tensors to CPU in-place ──────────────
         # With NO_SHARD FSDP (single GPU), PyTorch ignores offload_to_cpu=True
-        # and returns GPU tensors from state_dict() regardless of the config.
-        # Manually moving them to CPU here frees ~6 GB of GPU memory before the
-        # vLLM weight sync, giving hf_weight_loader enough room to stream each
-        # weight back to GPU one at a time without an OOM spike.
-        params_cpu = {
-            k: v.cpu() if isinstance(v, torch.Tensor) else v
-            for k, v in params.items()
-        }
-        del params
+        # and returns GPU tensors from state_dict() regardless of config.
+        # We convert in-place (no second dict) to avoid an extra ~6 GB RAM copy:
+        # only ONE param has simultaneous CPU+GPU copies at any moment.
+        for k in list(params.keys()):
+            v = params[k]
+            if isinstance(v, torch.Tensor) and v.is_cuda:
+                params[k] = v.cpu()
+                del v          # drop GPU ref immediately
         torch.cuda.empty_cache()
-        log_gpu_memory_usage('After forcing params to CPU', logger=logger)
+        log_gpu_memory_usage('After forcing params to CPU in-place', logger=logger)
         # ── END PATCH ────────────────────────────────────────────────────────
 
         load_format = 'hf' if self.full_params else 'dtensor'
-        self.inference_engine.sync_model_weights(params_cpu, load_format=load_format)
+        self.inference_engine.sync_model_weights(params, load_format=load_format)
         log_gpu_memory_usage('After sync model weights in sharding manager', logger=logger)
 
-        del params_cpu
+        del params
         torch.cuda.empty_cache()
-        log_gpu_memory_usage('After del params_cpu and empty_cache in sharding manager', logger=logger)
+        log_gpu_memory_usage('After del params and empty_cache in sharding manager', logger=logger)
 
         if self.device_mesh is not None:
             self.torch_random_states = torch.cuda.get_rng_state()
