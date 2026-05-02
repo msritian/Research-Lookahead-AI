@@ -12,7 +12,7 @@
 set -e
 
 SEARCHR1=${1:-"../Search-R1"}
-REPO=$(dirname "$(dirname "$(realpath "$0")")")   # Research-Lookahead-AI root
+REPO=$(dirname "$(dirname "$(dirname "$(realpath "$0")")")")   # Research-Lookahead-AI root
 
 echo "Patching Search-R1 at: $SEARCHR1"
 echo "Using custom files from: $REPO"
