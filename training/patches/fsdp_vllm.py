@@ -15,6 +15,7 @@
 #      stay on CPU and only move to GPU one-at-a-time during load_weights.
 #   2. Add torch.cuda.empty_cache() before sync to reclaim fragmented memory.
 
+import gc
 import os
 import logging
 import torch
@@ -96,6 +97,7 @@ class FSDPVLLMShardingManager(BaseShardingManager):
             if isinstance(v, torch.Tensor) and v.is_cuda:
                 params[k] = v.cpu()
                 del v          # drop GPU ref immediately
+        gc.collect()           # force Python to release any remaining GPU refs
         torch.cuda.empty_cache()
         log_gpu_memory_usage('After forcing params to CPU in-place', logger=logger)
         # ── END PATCH ────────────────────────────────────────────────────────
