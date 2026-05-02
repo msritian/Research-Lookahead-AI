@@ -521,6 +521,7 @@ cd Search-R1 && pip install -e . && cd ..
 
 ```bash
 pip install exa_py fastapi uvicorn pandas pyarrow
+pip install flash-attn --no-build-isolation   # required by veRL actor (~5 min on A100)
 ```
 
 ### Step 3 — Process the dataset
