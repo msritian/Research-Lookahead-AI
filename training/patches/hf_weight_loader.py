@@ -60,6 +60,9 @@ def load_hf_weights(actor_weights: Dict, vllm_model: nn.Module):
             if hasattr(module, "process_weights_after_loading"):
                 module.process_weights_after_loading()
 
-        # Original: vllm_model = vllm_model.cuda()
-        # Removed — weights are already on GPU after the streamed load above.
-        # Calling .cuda() here would attempt to allocate the full model again → OOM.
+        # Call .cuda() to ensure any remaining buffers / non-parameter tensors
+        # are on GPU (e.g. rotary embedding buffers, layer-norm buffers).
+        # This is now cheap: model *weights* are already on GPU after the streamed
+        # load above, so PyTorch skips them (no allocation) and only moves the
+        # small buffer tensors that load_weights doesn't cover.
+        vllm_model = vllm_model.cuda()
